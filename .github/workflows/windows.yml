@@ -22,10 +22,10 @@ jobs:
           dotnet-version: 8.0.x
 
       - name: Restore
-        run: dotnet restore src/FocusCube/FocusCube.csproj
+        run: dotnet restore src/FocusCube/FocusCube.csproj -r win-x64
 
       - name: Build
-        run: dotnet build src/FocusCube/FocusCube.csproj -c Release --no-restore
+        run: dotnet build src/FocusCube/FocusCube.csproj -c Release -r win-x64 --no-restore
 
       - name: Publish win-x64
         run: >-
