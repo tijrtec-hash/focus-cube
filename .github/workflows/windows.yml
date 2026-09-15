@@ -1,0 +1,56 @@
+name: Windows build and publish
+
+on:
+  workflow_dispatch:
+  push:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build and publish
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore
+        run: dotnet restore src/FocusCube/FocusCube.csproj
+
+      - name: Build
+        run: dotnet build src/FocusCube/FocusCube.csproj -c Release --no-restore
+
+      - name: Publish win-x64
+        run: >-
+          dotnet publish src/FocusCube/FocusCube.csproj
+          -c Release
+          -r win-x64
+          --self-contained true
+          --no-restore
+          -p:PublishSingleFile=true
+          -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:DebugType=None
+          -p:DebugSymbols=false
+          -o artifacts/win-x64
+
+      - name: Verify executable
+        shell: pwsh
+        run: |
+          if (-not (Test-Path "artifacts/win-x64/FocusCube.exe")) {
+            throw "FocusCube.exe was not produced."
+          }
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: FocusCube-win-x64
+          path: artifacts/win-x64/
+          if-no-files-found: error
+          retention-days: 14
