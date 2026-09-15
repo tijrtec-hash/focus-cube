@@ -28,8 +28,8 @@
             <GradientStop Color="#050607" Offset="1" />
         </RadialGradientBrush>
 
-        <!-- Resting artwork comes from the approved visual reference. These buttons
-             preserve real hit targets without replacing the approved physical relief. -->
+        <!-- Exact hit regions are aligned to the approved reference artwork.
+             Hover feedback is deliberately subtle so it never draws an offset blue box. -->
         <Style x:Key="ReferenceHitButton" TargetType="Button">
             <Setter Property="Background" Value="#01000000" />
             <Setter Property="BorderBrush" Value="Transparent" />
@@ -41,19 +41,15 @@
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="HitChrome"
                                 Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="34">
+                                CornerRadius="44">
                             <ContentPresenter />
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="HitChrome" Property="BorderBrush" Value="#6085F2E8" />
-                                <Setter TargetName="HitChrome" Property="BorderThickness" Value="5" />
-                                <Setter TargetName="HitChrome" Property="Background" Value="#0D8EF5EA" />
+                                <Setter TargetName="HitChrome" Property="Background" Value="#10FFFFFF" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="HitChrome" Property="Background" Value="#22000000" />
+                                <Setter TargetName="HitChrome" Property="Background" Value="#25000000" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -76,8 +72,8 @@
         </Style>
     </Window.Resources>
 
-    <!-- The Viewbox deliberately stays at the approved 170 × 251 size even when
-         the Window collapses. The root clips the lower drawer instead of squashing it. -->
+    <!-- The Viewbox always keeps the approved 170 × 251 design scale.
+         Compact mode clips the lower drawer instead of scaling the artwork. -->
     <Grid x:Name="ViewportClip" ClipToBounds="True" Background="Transparent">
         <Viewbox x:Name="DesignView"
                  Width="170"
@@ -88,145 +84,207 @@
                  StretchDirection="Both">
             <Canvas Width="1388" Height="2048" Background="Transparent">
 
-                <Image Canvas.Left="0"
-                       Canvas.Top="0"
-                       Width="1388"
-                       Height="2048"
-                       Source="Assets/widget-shell-reference.png"
-                       Stretch="Fill"
-                       SnapsToDevicePixels="True">
-                    <Image.Clip>
-                        <GeometryGroup FillRule="Nonzero">
-                            <RectangleGeometry Rect="34,8,1320,1368" RadiusX="92" RadiusY="92" />
+                <!-- Drawer is a separate physical layer so it can slide upward behind the body. -->
+                <Canvas x:Name="DrawerLayer"
+                        Width="1388"
+                        Height="2048"
+                        Panel.ZIndex="0">
+                    <Canvas.RenderTransform>
+                        <TranslateTransform x:Name="DrawerTranslate" Y="0" />
+                    </Canvas.RenderTransform>
+
+                    <Image Canvas.Left="0"
+                           Canvas.Top="0"
+                           Width="1388"
+                           Height="2048"
+                           Source="Assets/widget-shell-reference.png"
+                           Stretch="Fill"
+                           SnapsToDevicePixels="True">
+                        <Image.Clip>
                             <RectangleGeometry Rect="104,1274,1178,724" RadiusX="72" RadiusY="72" />
-                        </GeometryGroup>
-                    </Image.Clip>
-                    <Image.Effect>
-                        <DropShadowEffect Color="#000000"
-                                          BlurRadius="32"
-                                          ShadowDepth="18"
-                                          Direction="270"
-                                          Opacity="0.42" />
-                    </Image.Effect>
-                </Image>
+                        </Image.Clip>
+                        <Image.Effect>
+                            <DropShadowEffect Color="#000000"
+                                              BlurRadius="32"
+                                              ShadowDepth="18"
+                                              Direction="270"
+                                              Opacity="0.42" />
+                        </Image.Effect>
+                    </Image>
 
-                <Border Canvas.Left="101"
-                        Canvas.Top="74"
-                        Width="1186"
-                        Height="1238"
-                        CornerRadius="76"
-                        Background="{StaticResource DisplaySurfaceBrush}"
-                        BorderBrush="#383B3D"
-                        BorderThickness="8">
-                    <Border.Effect>
-                        <DropShadowEffect Color="#000000"
-                                          BlurRadius="22"
-                                          ShadowDepth="9"
-                                          Direction="315"
-                                          Opacity="0.52" />
-                    </Border.Effect>
-                </Border>
+                    <!-- Exact physical button bounds measured from the approved reference. -->
+                    <Button Canvas.Left="229" Canvas.Top="1429" Width="206" Height="205"
+                            Style="{StaticResource ReferenceHitButton}"
+                            ToolTip="Adicionar 5 minutos"
+                            Click="Add5_Click" />
+                    <Button Canvas.Left="468" Canvas.Top="1429" Width="206" Height="205"
+                            Style="{StaticResource ReferenceHitButton}"
+                            ToolTip="Adicionar 10 minutos"
+                            Click="Add10_Click" />
+                    <Button Canvas.Left="707" Canvas.Top="1429" Width="206" Height="205"
+                            Style="{StaticResource ReferenceHitButton}"
+                            ToolTip="Adicionar 30 minutos"
+                            Click="Add30_Click" />
+                    <Button Canvas.Left="946" Canvas.Top="1429" Width="207" Height="205"
+                            Style="{StaticResource ReferenceHitButton}"
+                            ToolTip="Adicionar 60 minutos"
+                            Click="Add60_Click" />
 
-                <Border Canvas.Left="116"
-                        Canvas.Top="89"
-                        Width="1156"
-                        Height="1208"
-                        CornerRadius="66"
-                        Background="Transparent"
-                        BorderBrush="#20FFFFFF"
-                        BorderThickness="5"
-                        IsHitTestVisible="False" />
+                    <!-- Reset and more are glyphs printed on the drawer, so their hit areas stay invisible. -->
+                    <Button Canvas.Left="350" Canvas.Top="1660" Width="200" Height="210"
+                            Style="{StaticResource InvisibleHitButton}"
+                            ToolTip="Reset"
+                            Click="Reset_Click" />
 
-                <Border x:Name="CompletionGlow"
-                        Canvas.Left="101"
-                        Canvas.Top="74"
-                        Width="1186"
-                        Height="1238"
-                        CornerRadius="76"
-                        Background="Transparent"
-                        BorderBrush="#FFFF4438"
-                        BorderThickness="15"
-                        Opacity="0"
-                        IsHitTestVisible="False" />
+                    <Button x:Name="PauseButton"
+                            Canvas.Left="588" Canvas.Top="1667" Width="206" Height="205"
+                            Style="{StaticResource ReferenceHitButton}"
+                            ToolTip="Pausar"
+                            Click="Pause_Click" />
 
-                <local:ProgressRing x:Name="TimerProgressRing"
-                                    Canvas.Left="211"
-                                    Canvas.Top="166"
-                                    Width="966"
-                                    Height="966"
-                                    Progress="1"
-                                    TrackBrush="#404347"
-                                    RingBrush="#55DB8C"
-                                    Thickness="29"
-                                    SegmentCount="12"
-                                    GapDegrees="6.5"
-                                    UseProgressColor="True"
-                                    IsHitTestVisible="False" />
+                    <Button x:Name="MoreButton"
+                            Canvas.Left="835" Canvas.Top="1660" Width="200" Height="210"
+                            Style="{StaticResource InvisibleHitButton}"
+                            ToolTip="Mais opções"
+                            Click="More_Click" />
 
-                <TextBlock x:Name="ModeText"
-                           Canvas.Left="0"
-                           Canvas.Top="425"
+                    <!-- The static pause glyph was removed from the shell bitmap.
+                         These vector glyphs change state without lowering image fidelity. -->
+                    <Path x:Name="PauseGlyph"
+                          Data="M 661,1724 L 661,1805 M 709,1724 L 709,1805"
+                          Stroke="#82E9F2"
+                          StrokeThickness="20"
+                          StrokeStartLineCap="Round"
+                          StrokeEndLineCap="Round"
+                          Fill="Transparent"
+                          IsHitTestVisible="False" />
+
+                    <Path x:Name="PlayGlyph"
+                          Data="M 655,1718 L 728,1764 L 655,1810 Z"
+                          Fill="#82E9F2"
+                          Visibility="Collapsed"
+                          IsHitTestVisible="False" />
+                </Canvas>
+
+                <!-- Main body stays above the drawer while it retracts. -->
+                <Canvas x:Name="MainLayer"
+                        Width="1388"
+                        Height="2048"
+                        Panel.ZIndex="2">
+                    <Image Canvas.Left="0"
+                           Canvas.Top="0"
                            Width="1388"
-                           Text="TIMER"
-                           TextAlignment="Center"
-                           FontFamily="Segoe UI Light"
-                           FontSize="50"
-                           FontWeight="Light"
-                           Foreground="#AEB3B8"
-                           IsHitTestVisible="False" />
+                           Height="2048"
+                           Source="Assets/widget-shell-reference.png"
+                           Stretch="Fill"
+                           SnapsToDevicePixels="True">
+                        <Image.Clip>
+                            <RectangleGeometry Rect="34,8,1320,1368" RadiusX="92" RadiusY="92" />
+                        </Image.Clip>
+                        <Image.Effect>
+                            <DropShadowEffect Color="#000000"
+                                              BlurRadius="32"
+                                              ShadowDepth="18"
+                                              Direction="270"
+                                              Opacity="0.42" />
+                        </Image.Effect>
+                    </Image>
 
-                <TextBlock x:Name="TimeText"
-                           Canvas.Left="0"
-                           Canvas.Top="532"
-                           Width="1388"
-                           Text="60:00"
-                           TextAlignment="Center"
-                           FontFamily="Segoe UI Light"
-                           FontSize="186"
-                           FontWeight="Light"
-                           Foreground="#EFF8FA"
-                           IsHitTestVisible="False" />
+                    <Border Canvas.Left="101"
+                            Canvas.Top="74"
+                            Width="1186"
+                            Height="1238"
+                            CornerRadius="76"
+                            Background="{StaticResource DisplaySurfaceBrush}"
+                            BorderBrush="#383B3D"
+                            BorderThickness="8">
+                        <Border.Effect>
+                            <DropShadowEffect Color="#000000"
+                                              BlurRadius="22"
+                                              ShadowDepth="9"
+                                              Direction="315"
+                                              Opacity="0.52" />
+                        </Border.Effect>
+                    </Border>
 
-                <Path x:Name="DrawerChevron"
-                      Data="M 651,1272 L 694,1228 L 737,1272"
-                      Stroke="#D8DEE1"
-                      StrokeThickness="12"
-                      StrokeStartLineCap="Round"
-                      StrokeEndLineCap="Round"
-                      StrokeLineJoin="Round"
-                      Fill="Transparent"
-                      IsHitTestVisible="False" />
+                    <Border Canvas.Left="116"
+                            Canvas.Top="89"
+                            Width="1156"
+                            Height="1208"
+                            CornerRadius="66"
+                            Background="Transparent"
+                            BorderBrush="#20FFFFFF"
+                            BorderThickness="5"
+                            IsHitTestVisible="False" />
 
-                <Button Canvas.Left="590"
-                        Canvas.Top="1170"
-                        Width="210"
-                        Height="170"
-                        Style="{StaticResource InvisibleHitButton}"
-                        ToolTip="Recolher controles"
-                        Click="DrawerToggle_Click" />
+                    <Border x:Name="CompletionGlow"
+                            Canvas.Left="101"
+                            Canvas.Top="74"
+                            Width="1186"
+                            Height="1238"
+                            CornerRadius="76"
+                            Background="Transparent"
+                            BorderBrush="#FFFF4438"
+                            BorderThickness="15"
+                            Opacity="0"
+                            IsHitTestVisible="False" />
 
-                <Button Canvas.Left="198" Canvas.Top="1430" Width="132" Height="142"
-                        Style="{StaticResource ReferenceHitButton}" ToolTip="Adicionar 5 minutos"
-                        Click="Add5_Click" />
-                <Button Canvas.Left="358" Canvas.Top="1430" Width="150" Height="142"
-                        Style="{StaticResource ReferenceHitButton}" ToolTip="Adicionar 10 minutos"
-                        Click="Add10_Click" />
-                <Button Canvas.Left="534" Canvas.Top="1430" Width="150" Height="142"
-                        Style="{StaticResource ReferenceHitButton}" ToolTip="Adicionar 30 minutos"
-                        Click="Add30_Click" />
-                <Button Canvas.Left="713" Canvas.Top="1430" Width="150" Height="142"
-                        Style="{StaticResource ReferenceHitButton}" ToolTip="Adicionar 60 minutos"
-                        Click="Add60_Click" />
+                    <local:ProgressRing x:Name="TimerProgressRing"
+                                        Canvas.Left="211"
+                                        Canvas.Top="166"
+                                        Width="966"
+                                        Height="966"
+                                        Progress="1"
+                                        TrackBrush="#404347"
+                                        RingBrush="#55DB8C"
+                                        Thickness="29"
+                                        SegmentCount="12"
+                                        GapDegrees="6.5"
+                                        UseProgressColor="True"
+                                        IsHitTestVisible="False" />
 
-                <Button Canvas.Left="292" Canvas.Top="1685" Width="110" Height="135"
-                        Style="{StaticResource ReferenceHitButton}" ToolTip="Reset"
-                        Click="Reset_Click" />
-                <Button x:Name="PauseButton" Canvas.Left="591" Canvas.Top="1666" Width="206" Height="185"
-                        Style="{StaticResource ReferenceHitButton}" ToolTip="Pausar"
-                        Click="Pause_Click" />
-                <Button x:Name="MoreButton" Canvas.Left="888" Canvas.Top="1686" Width="130" Height="135"
-                        Style="{StaticResource ReferenceHitButton}" ToolTip="Mais opções"
-                        Click="More_Click" />
+                    <TextBlock x:Name="ModeText"
+                               Canvas.Left="0"
+                               Canvas.Top="425"
+                               Width="1388"
+                               Text="TIMER"
+                               TextAlignment="Center"
+                               FontFamily="Segoe UI Light"
+                               FontSize="50"
+                               FontWeight="Light"
+                               Foreground="#AEB3B8"
+                               IsHitTestVisible="False" />
+
+                    <TextBlock x:Name="TimeText"
+                               Canvas.Left="0"
+                               Canvas.Top="532"
+                               Width="1388"
+                               Text="60:00"
+                               TextAlignment="Center"
+                               FontFamily="Segoe UI Light"
+                               FontSize="186"
+                               FontWeight="Light"
+                               Foreground="#EFF8FA"
+                               IsHitTestVisible="False" />
+
+                    <Path x:Name="DrawerChevron"
+                          Data="M 651,1272 L 694,1228 L 737,1272"
+                          Stroke="#D8DEE1"
+                          StrokeThickness="12"
+                          StrokeStartLineCap="Round"
+                          StrokeEndLineCap="Round"
+                          StrokeLineJoin="Round"
+                          Fill="Transparent"
+                          IsHitTestVisible="False" />
+
+                    <Button Canvas.Left="590"
+                            Canvas.Top="1170"
+                            Width="210"
+                            Height="170"
+                            Style="{StaticResource InvisibleHitButton}"
+                            ToolTip="Recolher controles"
+                            Click="DrawerToggle_Click" />
+                </Canvas>
             </Canvas>
         </Viewbox>
     </Grid>

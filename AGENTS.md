@@ -44,6 +44,9 @@ Não pedir que o usuário reconte decisões já registradas.
 - Estado expandido: corpo + gaveta.
 - Botões rápidos `+5`, `+10`, `+30`, `+60` adicionam tempo à sessão corrente.
 - Menu `...` oferece tempo exato/personalizado, som, always-on-top, gaveta e saída.
+- Toque de conclusão oferece três presets internos (Suave, Digital e Sino) e arquivo personalizado WAV/MP3/WMA.
+- Hit targets devem coincidir com a geometria visível da arte aprovada; não exibir contornos de seleção deslocados.
+- Pause/play deve usar glyph vetorial dinâmico: pause enquanto roda e play quando pausado/concluído.
 - O aro diminui com o tempo restante e usa a sequência `verde → amarelo → laranja → vermelho`.
 - Ao terminar, o app usa alerta visual e som opcional.
 - Configurações leves ficam em `%LOCALAPPDATA%\FocusCube\settings.json`.
@@ -57,7 +60,7 @@ Não pedir que o usuário reconte decisões já registradas.
 - Pause/play alterna a sessão.
 - Reset restaura a duração exata selecionada mais recentemente; inicialmente `60:00`.
 - `+5/+10/+30/+60` não mudam o alvo do reset, apenas estendem a sessão corrente.
-- Gaveta abre/fecha com animação e preserva o alinhamento inferior quando dockada embaixo.
+- Gaveta abre/fecha com animação física: recolher move a gaveta para cima por trás do corpo, com desaceleração suave no fim; preservar alinhamento inferior quando dockada embaixo.
 - `Space` pausa/continua; `R` reseta; `E` expande/recolhe quando a janela tem foco.
 - Always-on-top pode ser ligado/desligado pelo menu e é persistido.
 - Som ao terminar pode ser ligado/desligado pelo menu e é persistido.
@@ -106,6 +109,7 @@ Uma etapa não substitui outra. Build verde não comprova fidelidade visual ou i
 - **DRAWER-01 / 0.5.x:** expansão/recolhimento e microinterações.
 - **DOCK-01 / 0.6.x:** drag refinado, snap e persistência.
 - **POLISH-01 / 1.0.x:** menu, alerta, customização leve, DPI/acabamento e release candidate.
+- **UX-01 / 1.1.x:** precisão de hit targets, sons selecionáveis/personalizados, drawer motion e pause/play dinâmico.
 
 ## 9. Documentação
 

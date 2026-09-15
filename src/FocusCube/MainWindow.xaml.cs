@@ -1,3 +1,4 @@
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -5,6 +6,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
+using Microsoft.Win32;
 
 namespace FocusCube;
 
@@ -14,6 +16,7 @@ public partial class MainWindow : Window
     private const double ExpandedHeight = 251d;
     private const double CompactHeight = 170d;
     private const double DefaultWidth = 170d;
+    private const double DrawerRetractedY = -650d;
 
     private readonly TimerSession _session = new(DefaultDuration);
     private readonly DispatcherTimer _uiTimer;
@@ -26,6 +29,10 @@ public partial class MainWindow : Window
     private MenuItem? _soundMenuItem;
     private MenuItem? _topmostMenuItem;
     private MenuItem? _drawerMenuItem;
+    private MenuItem? _softSoundMenuItem;
+    private MenuItem? _digitalSoundMenuItem;
+    private MenuItem? _bellSoundMenuItem;
+    private MenuItem? _customSoundMenuItem;
 
     public MainWindow()
     {
@@ -36,6 +43,7 @@ public partial class MainWindow : Window
         Topmost = _settings.AlwaysOnTop;
         Width = DefaultWidth;
         Height = _drawerExpanded ? ExpandedHeight : CompactHeight;
+        DrawerTranslate.Y = _drawerExpanded ? 0d : DrawerRetractedY;
         UpdateChevron();
 
         _moreMenu = BuildMoreMenu();
@@ -110,13 +118,20 @@ public partial class MainWindow : Window
             CompletionGlow.Opacity = 0;
         }
 
-        PauseButton.ToolTip = _session.IsRunning ? "Pausar" : "Continuar";
+        UpdatePausePlayVisual();
+    }
+
+    private void UpdatePausePlayVisual()
+    {
+        var running = _session.IsRunning;
+        PauseGlyph.Visibility = running ? Visibility.Visible : Visibility.Collapsed;
+        PlayGlyph.Visibility = running ? Visibility.Collapsed : Visibility.Visible;
+        PauseButton.ToolTip = running ? "Pausar" : "Continuar";
     }
 
     private void NotifyCompletion()
     {
-        if (_settings.SoundEnabled)
-            NativeFeedback.PlayCompletionSound();
+        CompletionSoundService.Play(_settings);
 
         var pulse = new DoubleAnimation
         {
@@ -170,6 +185,8 @@ public partial class MainWindow : Window
 
         var oldHeight = Height;
         var targetHeight = expanded ? ExpandedHeight : CompactHeight;
+        var oldDrawerY = DrawerTranslate.Y;
+        var targetDrawerY = expanded ? 0d : DrawerRetractedY;
         var wasNearBottom = _isLoaded && DesktopDocking.IsNearBottom(this);
         var oldTop = Top;
         var targetTop = wasNearBottom ? oldTop + oldHeight - targetHeight : oldTop;
@@ -182,6 +199,7 @@ public partial class MainWindow : Window
 
         if (!animate || !_isLoaded)
         {
+            DrawerTranslate.Y = targetDrawerY;
             Height = targetHeight;
             if (wasNearBottom)
                 Top = targetTop;
@@ -189,9 +207,26 @@ public partial class MainWindow : Window
             return;
         }
 
-        var easing = new QuarticEase { EasingMode = EasingMode.EaseOut };
-        var duration = TimeSpan.FromMilliseconds(180);
-        var heightAnimation = new DoubleAnimation(oldHeight, targetHeight, duration) { EasingFunction = easing };
+        // Physical drawer motion: the lower module slides upward behind the body.
+        // Quintic EaseOut gives a fast initial movement and a soft landing at the end.
+        var easing = new QuinticEase { EasingMode = EasingMode.EaseOut };
+        var duration = TimeSpan.FromMilliseconds(300);
+
+        var drawerAnimation = new DoubleAnimation(oldDrawerY, targetDrawerY, duration)
+        {
+            EasingFunction = easing
+        };
+        drawerAnimation.Completed += (_, _) =>
+        {
+            DrawerTranslate.BeginAnimation(TranslateTransform.YProperty, null);
+            DrawerTranslate.Y = targetDrawerY;
+        };
+        DrawerTranslate.BeginAnimation(TranslateTransform.YProperty, drawerAnimation, HandoffBehavior.SnapshotAndReplace);
+
+        var heightAnimation = new DoubleAnimation(oldHeight, targetHeight, duration)
+        {
+            EasingFunction = easing
+        };
         heightAnimation.Completed += (_, _) =>
         {
             BeginAnimation(HeightProperty, null);
@@ -203,12 +238,14 @@ public partial class MainWindow : Window
             }
             PersistSettings();
         };
-
         BeginAnimation(HeightProperty, heightAnimation, HandoffBehavior.SnapshotAndReplace);
 
         if (wasNearBottom)
         {
-            var topAnimation = new DoubleAnimation(oldTop, targetTop, duration) { EasingFunction = easing };
+            var topAnimation = new DoubleAnimation(oldTop, targetTop, duration)
+            {
+                EasingFunction = easing
+            };
             BeginAnimation(TopProperty, topAnimation, HandoffBehavior.SnapshotAndReplace);
         }
     }
@@ -245,6 +282,20 @@ public partial class MainWindow : Window
         _soundMenuItem.IsChecked = _settings.SoundEnabled;
         menu.Items.Add(_soundMenuItem);
 
+        var toneMenu = new MenuItem { Header = "Toque de fim" };
+        _softSoundMenuItem = CheckableMenuItem("Suave", (_, _) => SelectCompletionSound(CompletionSoundService.SoftPreset));
+        _digitalSoundMenuItem = CheckableMenuItem("Digital", (_, _) => SelectCompletionSound(CompletionSoundService.DigitalPreset));
+        _bellSoundMenuItem = CheckableMenuItem("Sino", (_, _) => SelectCompletionSound(CompletionSoundService.BellPreset));
+        _customSoundMenuItem = CheckableMenuItem("Personalizado…", (_, _) => ChooseCustomSound());
+
+        toneMenu.Items.Add(_softSoundMenuItem);
+        toneMenu.Items.Add(_digitalSoundMenuItem);
+        toneMenu.Items.Add(_bellSoundMenuItem);
+        toneMenu.Items.Add(new Separator());
+        toneMenu.Items.Add(_customSoundMenuItem);
+        toneMenu.Items.Add(MenuItem("Testar toque", (_, _) => CompletionSoundService.Preview(_settings)));
+        menu.Items.Add(toneMenu);
+
         _topmostMenuItem = MenuItem("Sempre no topo", (_, _) =>
         {
             _settings.AlwaysOnTop = _topmostMenuItem?.IsChecked == true;
@@ -264,13 +315,93 @@ public partial class MainWindow : Window
         menu.Items.Add(new Separator());
         menu.Items.Add(MenuItem("Sair", (_, _) => Close()));
 
+        UpdateSoundMenuChecks();
         return menu;
+    }
+
+    private void SelectCompletionSound(string preset)
+    {
+        _settings.CompletionSound = preset;
+        _settings.SoundEnabled = true;
+        if (_soundMenuItem is not null)
+            _soundMenuItem.IsChecked = true;
+
+        UpdateSoundMenuChecks();
+        PersistSettings();
+        CompletionSoundService.Preview(_settings);
+    }
+
+    private void ChooseCustomSound()
+    {
+        var dialog = new OpenFileDialog
+        {
+            Title = "Escolher som de fim do timer",
+            Filter = "Áudio compatível (*.wav;*.mp3;*.wma)|*.wav;*.mp3;*.wma|Todos os arquivos (*.*)|*.*",
+            CheckFileExists = true,
+            Multiselect = false
+        };
+
+        if (!string.IsNullOrWhiteSpace(_settings.CustomSoundPath))
+        {
+            try
+            {
+                var directory = Path.GetDirectoryName(_settings.CustomSoundPath);
+                if (!string.IsNullOrWhiteSpace(directory) && Directory.Exists(directory))
+                    dialog.InitialDirectory = directory;
+            }
+            catch
+            {
+                // Ignore an invalid previous custom path.
+            }
+        }
+
+        if (dialog.ShowDialog(this) != true)
+        {
+            UpdateSoundMenuChecks();
+            return;
+        }
+
+        _settings.CustomSoundPath = dialog.FileName;
+        _settings.CompletionSound = CompletionSoundService.CustomPreset;
+        _settings.SoundEnabled = true;
+        if (_soundMenuItem is not null)
+            _soundMenuItem.IsChecked = true;
+
+        UpdateSoundMenuChecks();
+        PersistSettings();
+        CompletionSoundService.Preview(_settings);
+    }
+
+    private void UpdateSoundMenuChecks()
+    {
+        var preset = _settings.CompletionSound;
+        if (_softSoundMenuItem is not null)
+            _softSoundMenuItem.IsChecked = string.Equals(preset, CompletionSoundService.SoftPreset, StringComparison.OrdinalIgnoreCase) || string.IsNullOrWhiteSpace(preset);
+        if (_digitalSoundMenuItem is not null)
+            _digitalSoundMenuItem.IsChecked = string.Equals(preset, CompletionSoundService.DigitalPreset, StringComparison.OrdinalIgnoreCase);
+        if (_bellSoundMenuItem is not null)
+            _bellSoundMenuItem.IsChecked = string.Equals(preset, CompletionSoundService.BellPreset, StringComparison.OrdinalIgnoreCase);
+        if (_customSoundMenuItem is not null)
+        {
+            _customSoundMenuItem.IsChecked = string.Equals(preset, CompletionSoundService.CustomPreset, StringComparison.OrdinalIgnoreCase);
+            _customSoundMenuItem.Header = string.IsNullOrWhiteSpace(_settings.CustomSoundPath)
+                ? "Personalizado…"
+                : $"Personalizado… ({Path.GetFileName(_settings.CustomSoundPath)})";
+        }
     }
 
     private static MenuItem MenuItem(string header, RoutedEventHandler handler)
     {
         var item = new MenuItem { Header = header };
         item.Click += handler;
+        return item;
+    }
+
+    private static MenuItem CheckableMenuItem(string header, RoutedEventHandler handler)
+    {
+        var item = MenuItem(header, handler);
+        item.IsCheckable = true;
+        item.StaysOpenOnClick = false;
         return item;
     }
 
@@ -283,6 +414,7 @@ public partial class MainWindow : Window
         if (_drawerMenuItem is not null)
             _drawerMenuItem.Header = _drawerExpanded ? "Recolher controles" : "Expandir controles";
 
+        UpdateSoundMenuChecks();
         _moreMenu.PlacementTarget = MoreButton;
         _moreMenu.IsOpen = true;
     }
