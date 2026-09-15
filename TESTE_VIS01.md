@@ -1,98 +1,100 @@
-# Teste Focus Cube 0.1.0 — BASE-01 / VIS-01
+# Teste Focus Cube 0.2.0 — VIS-01
 
-Este roteiro valida o primeiro executável e o shell visual atual.
+Este roteiro valida a segunda versão visual após a captura real da 0.1.0.
 
 ## 1. Build
 
-1. Envie esta versão para o mesmo repositório GitHub.
+1. Envie/substitua os arquivos desta versão no mesmo repositório GitHub.
 2. Abra **Actions → Windows build and publish**.
 3. Se ficar vermelho, abra **Build and publish** e pare.
-4. Envie o primeiro erro relevante.
+4. Envie somente o primeiro erro relevante da nova execução.
 5. Se ficar verde, baixe **FocusCube-win-x64**.
 6. Extraia o arquivo baixado.
 7. Abra `FocusCube.exe`.
 
 **Esperado:** o aplicativo abre e mostra o widget.
 
-## 2. Aparência geral
+## 2. Tamanho no desktop
 
-Compare com:
+Compare com a versão anterior.
+
+**Esperado:**
+
+- o widget está claramente menor;
+- ocupa uma fração discreta da tela;
+- ainda é legível sem parecer uma janela grande;
+- a proporção geral é mais vertical, próxima da referência aprovada.
+
+Se ainda estiver grande, envie uma captura de tela inteira, sem recortar.
+
+## 3. Aparência geral
+
+Compare lado a lado com:
 
 `docs/reference/widget-expanded-approved.png`
 
 **Esperado:**
 
-- timer é o elemento mais chamativo;
-- corpo parece um objeto compacto, não uma janela comum;
+- carcaça com aparência mais clara/metálica;
+- display ocupa mais da face superior;
+- menos molduras pesadas entre carcaça e display;
+- gaveta parece sair de baixo do corpo;
+- conjunto lembra mais o objeto da referência e menos um painel genérico.
+
+## 4. Timer e aro
+
+Observe `52:18`, `TIMER` e o círculo.
+
+**Esperado:**
+
+- `52:18` domina visualmente o display;
+- `TIMER` é secundário e discreto;
+- aro é espesso e dividido em segmentos;
+- com `Progress=0.87`, a cor atual é verde;
+- partes inativas aparecem em cinza escuro;
+- chevron fica dentro da parte inferior do display.
+
+O tempo ainda é estático nesta versão.
+
+## 5. Gaveta e botões
+
+**Esperado:**
+
+- gaveta é um pouco mais estreita que o corpo superior;
+- `+5`, `+10`, `+30`, `+60` parecem botões físicos elevados;
+- hover produz glow discreto;
+- pause é o controle elevado principal;
+- reset e `•••` são mais discretos, sem três caixas idênticas.
+
+Os controles ainda não alteram o timer.
+
+## 6. Relevo e material
+
+Observe bordas superiores, sombras e superfícies.
+
+**Esperado:**
+
+- corpo tem highlight superior e sombra inferior;
 - display parece recuado;
-- gaveta parece parte do mesmo objeto;
-- proporções lembram claramente a referência.
+- botões parecem elevados;
+- gaveta tem volume próprio sem parecer separada do corpo.
 
-## 3. Timer e display
+## 7. Arraste e always-on-top
 
-Observe `52:18` e `TIMER`.
-
-**Esperado:**
-
-- `52:18` grande e legível;
-- texto nítido e sem cortes;
-- timer centralizado dentro do aro;
-- display escuro e recuado.
-
-O número ainda é estático nesta versão.
-
-## 4. Aro
-
-**Esperado:**
-
-- trilha circular nítida;
-- arco verde contínuo;
-- sem deformação aparente;
-- ainda estático.
-
-A transição verde→vermelho será implementada depois.
-
-## 5. Relevo e material
-
-**Esperado:**
-
-- superfícies altas e recuadas são distinguíveis;
-- highlights e sombras são sutis;
-- display parece encaixado;
-- gaveta parece uma peça do mesmo produto.
-
-## 6. Botões
-
-Passe o mouse em `+5`, `+10`, `+30`, `+60`.
-
-**Esperado:** glow/borda luminosa discreta.
-
-Pressione um botão por um instante.
-
-**Esperado:** sensação visual de botão pressionado.
-
-Os botões ainda não alteram o tempo nesta versão.
-
-## 7. Arraste
-
-Arraste uma área da carcaça que não seja botão.
+Arraste uma área não interativa.
 
 **Esperado:** o widget acompanha o mouse.
 
-Tente arrastar clicando diretamente em um botão.
+Abra outra janela por trás.
 
-**Esperado:** o botão não arrasta a janela.
+**Esperado:** o Focus Cube permanece acima da janela comum.
 
-## 8. Always-on-top
+## 8. Resultado
 
-Abra outra janela por trás do Focus Cube.
+Envie uma captura de tela inteira com o Focus Cube aberto.
 
-**Esperado:** o Focus Cube continua acima da janela comum.
+Se o visual estiver próximo o suficiente para avançar, responda:
 
-## 9. Resultado
+`Focus Cube VIS-01 aprovado`
 
-Se tudo estiver aceitável, responda:
-
-`Focus Cube VIS-01 base aprovada`
-
-Se houver problema, informe o número da etapa e envie uma captura do executável.
+Caso contrário, descreva somente as diferenças visuais mais importantes percebidas.

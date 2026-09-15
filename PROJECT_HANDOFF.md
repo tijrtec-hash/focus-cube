@@ -1,34 +1,40 @@
 # PROJECT_HANDOFF.md — FOCUS CUBE
 
 **Atualização:** 15/09/2026  
-**Checkpoint:** BASE-01 / preparação para VIS-01  
-**Versão de trabalho:** 0.1.0  
-**Validação existente:** estrutura XAML/XML checada; build no GitHub e validação visual ainda pendentes.  
-**Etapa atual:** enviar a versão atual ao mesmo repositório, compilar no GitHub Actions e testar o primeiro `FocusCube.exe`.
+**Checkpoint:** VIS-01 / refinamento visual 0.2.0  
+**Versão de trabalho:** 0.2.0  
+**Validação existente:** o primeiro executável 0.1.0 foi gerado e executado no Windows; o usuário enviou captura real e rejeitou a fidelidade visual por tamanho excessivo e distância da referência.  
+**Etapa atual:** compilar a revisão VIS-01 0.2.0 no GitHub Actions e comparar novamente com a referência.
 
 ## 1. Estado vigente
 
 O Focus Cube é um timer/widget desktop para Windows em C# + WPF + .NET 8.
 
-Já existe no código:
+O primeiro executável real confirmou que a base WPF abre e renderiza como widget. A captura enviada pelo usuário mostrou dois problemas principais:
 
-- janela sem borda;
-- transparência ao redor do widget;
-- `Topmost="True"`;
-- corpo grafite com sombras/relevos;
-- display escuro/recuado;
-- timer estático `52:18`;
-- aro vetorial estático;
-- gaveta inferior;
-- botões `+5/+10/+30/+60` com estados visuais;
-- botões visuais de reset, pause e menu;
-- arraste básico em áreas não interativas.
+- o conjunto ficou grande demais no desktop;
+- o shell estava visualmente mais simples e escuro que a referência aprovada.
+
+A revisão 0.2.0 implementa no código:
+
+- janela reduzida de `360 × 486` para `260 × 390` DIPs;
+- proporção geral mais próxima da referência vertical aprovada;
+- carcaça mais clara, metálica e com highlights de borda;
+- display maior em relação à carcaça, com menos molduras consumindo área útil;
+- timer `52:18` maior proporcionalmente;
+- aro mais espesso e segmentado em 12 partes;
+- cor automática do aro preparada para `verde → amarelo → laranja → vermelho` conforme `Progress` diminui;
+- chevron integrado dentro da face principal, em vez de uma ponte externa;
+- gaveta mais próxima da proporção da referência;
+- botões rápidos com relevo, highlight, sombra e glow no hover;
+- reset e menu visualmente planos; pause permanece como botão físico elevado;
+- workflow corrigido para restaurar explicitamente o runtime `win-x64` antes de build/publish.
 
 Ainda não implementado:
 
 - countdown real;
 - pause/reset/incrementos funcionais;
-- cor dinâmica verde→vermelho;
+- ligação do aro ao timer real;
 - expansão/recolhimento da gaveta;
 - snap/persistência.
 
@@ -38,14 +44,14 @@ A referência visual aprovada permanece em:
 
 ## 2. Próxima ação exata
 
-1. Enviar/substituir estes arquivos no **mesmo repositório GitHub pelo navegador**.
-2. Confirmar a alteração no site do GitHub.
+1. Enviar/substituir os arquivos da revisão 0.2.0 no mesmo repositório GitHub pelo navegador.
+2. Confirmar a alteração no site.
 3. Abrir **Actions → Windows build and publish**.
-4. Se ficar vermelho, abrir **Build and publish** e enviar o primeiro erro relevante.
-5. Se ficar verde, baixar **FocusCube-win-x64**.
-6. Extrair o artifact e abrir `FocusCube.exe`.
-7. Executar `TESTE_VIS01.md` e comparar com a referência visual.
-8. Enviar captura/relato do resultado para o próximo ajuste.
+4. Se vermelho, enviar somente o primeiro erro relevante da nova execução.
+5. Se verde, baixar **FocusCube-win-x64**.
+6. Extrair e abrir `FocusCube.exe`.
+7. Executar `TESTE_VIS01.md` e enviar uma captura do widget no desktop.
+8. Comparar tamanho, proporções, aro, relevo e gaveta com a referência antes de iniciar o motor do timer.
 
 ## 3. Regras do workflow atual
 
@@ -59,47 +65,50 @@ A referência visual aprovada permanece em:
 ## 4. Decisões visuais vigentes
 
 - timer grande e dominante;
-- display preto/recuado;
-- carcaça grafite/cinza com relevos sutis;
-- gaveta inferior integrada;
+- widget pequeno no desktop;
+- display preto/recuado ocupando a maior parte da face superior;
+- carcaça grafite/cinza com relevo, bevel e highlights sutis;
+- gaveta inferior integrada e ligeiramente mais estreita que o corpo;
 - botões luminosos `+5`, `+10`, `+30`, `+60`;
-- aro funcional ao redor do timer;
-- cor futura do aro: `verde → amarelo → laranja → vermelho` conforme o tempo acaba;
+- aro segmentado e funcional ao redor do timer;
+- cor do aro: `verde → amarelo → laranja → vermelho` conforme o tempo acaba;
+- reset e menu secundários discretos; pause é o controle físico principal;
 - sem dashboard permanente;
 - interface principal construída com elementos reais do WPF.
 
 ## 5. Validação disponível
 
-No ambiente de preparação não foi executado WPF/Windows nem build .NET real.
+Comprovado pelo usuário:
 
-Já verificado:
+- um `FocusCube.exe` da base 0.1.0 foi executado no Windows;
+- janela sem borda/transparente abriu;
+- widget foi renderizado;
+- a fidelidade VIS-01 da base 0.1.0 **não foi aprovada**;
+- problemas relatados: tamanho excessivo e visual distante da referência.
 
-- estrutura XML/XAML válida;
-- arquivos do workflow presentes.
-
-Ainda não comprovado:
-
-- restore/build/publicação no GitHub;
-- criação real de `FocusCube.exe`;
-- aparência no Windows;
-- hover/pressed em execução;
-- drag em execução;
-- always-on-top em execução.
+No ambiente de preparação da 0.2.0 foi possível somente inspeção/checagem estrutural. A revisão 0.2.0 ainda não foi compilada nem vista no Windows.
 
 ## 6. Limites atuais
 
-- tipografia pode diferir da referência;
-- WPF com transparência/sombras precisa de teste real no Windows;
-- `ProgressRing` ainda não está ligado a timer real;
-- botões da gaveta ainda são apenas visuais.
+- tipografia pode continuar diferindo da imagem gerada de referência;
+- materiais WPF dependem de teste real para ajuste fino;
+- o aro possui lógica visual de cor, mas ainda recebe `Progress` estático;
+- o tamanho em DIPs pode variar visualmente conforme escala/DPI do Windows; o teste real dirá se é necessário reduzir mais.
 
 ## 7. Histórico resumido
 
-### BASE-01
+### BASE-01 / 0.1.0
 
 - documentação de continuidade criada;
 - projeto WPF criado;
 - shell visual inicial implementado;
 - GitHub Actions preparado;
-- `TESTE_VIS01.md` criado;
-- workflow simplificado para o mesmo modelo operacional do HotDeck: enviar arquivos → Actions → artifact → teste.
+- primeiro executável executado pelo usuário;
+- VIS-01 rejeitado por tamanho e fidelidade.
+
+### VIS-01 / 0.2.0
+
+- reduzido o footprint do widget;
+- refinados material, display, proporções e controles;
+- criado aro segmentado com paleta dinâmica verde→vermelho;
+- corrigido workflow `win-x64` para refletir o hotfix usado no GitHub.
