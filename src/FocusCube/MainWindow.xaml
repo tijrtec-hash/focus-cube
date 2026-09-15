@@ -11,8 +11,10 @@
         Background="Transparent"
         Topmost="True"
         ShowInTaskbar="True"
+        WindowStartupLocation="Manual"
         SnapsToDevicePixels="True"
-        UseLayoutRounding="True">
+        UseLayoutRounding="True"
+        PreviewKeyDown="Window_PreviewKeyDown">
 
     <Window.Resources>
         <RadialGradientBrush x:Key="DisplaySurfaceBrush"
@@ -26,8 +28,8 @@
             <GradientStop Color="#050607" Offset="1" />
         </RadialGradientBrush>
 
-        <!-- The resting button artwork comes from the approved visual reference.
-             These transparent buttons preserve real hit targets without changing the shell. -->
+        <!-- Resting artwork comes from the approved visual reference. These buttons
+             preserve real hit targets without replacing the approved physical relief. -->
         <Style x:Key="ReferenceHitButton" TargetType="Button">
             <Setter Property="Background" Value="#01000000" />
             <Setter Property="BorderBrush" Value="Transparent" />
@@ -58,138 +60,174 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <Style x:Key="InvisibleHitButton" TargetType="Button">
+            <Setter Property="Background" Value="#01000000" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Focusable" Value="False" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" />
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
 
-    <!--
-        VIS-01 design surface follows the approved 1388 × 2048 reference exactly.
-        Viewbox scales the complete object down to the desktop widget size while
-        keeping all coordinates/proportions tied to that reference.
-    -->
-    <Viewbox Stretch="Fill" StretchDirection="Both">
-        <Canvas Width="1388" Height="2048" Background="Transparent">
+    <!-- The Viewbox deliberately stays at the approved 170 × 251 size even when
+         the Window collapses. The root clips the lower drawer instead of squashing it. -->
+    <Grid x:Name="ViewportClip" ClipToBounds="True" Background="Transparent">
+        <Viewbox x:Name="DesignView"
+                 Width="170"
+                 Height="251"
+                 HorizontalAlignment="Left"
+                 VerticalAlignment="Top"
+                 Stretch="Fill"
+                 StretchDirection="Both">
+            <Canvas Width="1388" Height="2048" Background="Transparent">
 
-            <!-- Static material shell. The reference itself provides the metal/plastic
-                 relief that proved difficult to approximate convincingly with flat WPF brushes. -->
-            <Image Canvas.Left="0"
-                   Canvas.Top="0"
-                   Width="1388"
-                   Height="2048"
-                   Source="Assets/widget-shell-reference.png"
-                   Stretch="Fill"
-                   SnapsToDevicePixels="True">
-                <Image.Clip>
-                    <GeometryGroup FillRule="Nonzero">
-                        <RectangleGeometry Rect="34,8,1320,1368" RadiusX="92" RadiusY="92" />
-                        <RectangleGeometry Rect="104,1274,1178,724" RadiusX="72" RadiusY="72" />
-                    </GeometryGroup>
-                </Image.Clip>
-                <Image.Effect>
-                    <DropShadowEffect Color="#000000"
-                                      BlurRadius="32"
-                                      ShadowDepth="18"
-                                      Direction="270"
-                                      Opacity="0.42" />
-                </Image.Effect>
-            </Image>
-
-            <!-- Clean live display surface covers the timer/ring baked into the reference,
-                 while keeping the approved frame and physical shell around it. -->
-            <Border Canvas.Left="101"
-                    Canvas.Top="74"
-                    Width="1186"
-                    Height="1238"
-                    CornerRadius="76"
-                    Background="{StaticResource DisplaySurfaceBrush}"
-                    BorderBrush="#383B3D"
-                    BorderThickness="8">
-                <Border.Effect>
-                    <DropShadowEffect Color="#000000"
-                                      BlurRadius="22"
-                                      ShadowDepth="9"
-                                      Direction="315"
-                                      Opacity="0.52" />
-                </Border.Effect>
-            </Border>
-
-            <Border Canvas.Left="116"
-                    Canvas.Top="89"
-                    Width="1156"
-                    Height="1208"
-                    CornerRadius="66"
-                    Background="Transparent"
-                    BorderBrush="#20FFFFFF"
-                    BorderThickness="5"
-                    IsHitTestVisible="False" />
-
-            <!-- Live progress ring. TIMER-01 now binds it to the real countdown in code-behind. -->
-            <local:ProgressRing x:Name="TimerProgressRing" Canvas.Left="211"
-                                Canvas.Top="166"
-                                Width="966"
-                                Height="966"
-                                Progress="1"
-                                TrackBrush="#404347"
-                                RingBrush="#55DB8C"
-                                Thickness="29"
-                                SegmentCount="12"
-                                GapDegrees="6.5"
-                                UseProgressColor="True"
-                                IsHitTestVisible="False" />
-
-            <TextBlock Canvas.Left="0"
-                       Canvas.Top="425"
+                <Image Canvas.Left="0"
+                       Canvas.Top="0"
                        Width="1388"
-                       Text="TIMER"
-                       TextAlignment="Center"
-                       FontFamily="Segoe UI Light"
-                       FontSize="50"
-                       FontWeight="Light"
-                       Foreground="#AEB3B8"
-                       IsHitTestVisible="False" />
+                       Height="2048"
+                       Source="Assets/widget-shell-reference.png"
+                       Stretch="Fill"
+                       SnapsToDevicePixels="True">
+                    <Image.Clip>
+                        <GeometryGroup FillRule="Nonzero">
+                            <RectangleGeometry Rect="34,8,1320,1368" RadiusX="92" RadiusY="92" />
+                            <RectangleGeometry Rect="104,1274,1178,724" RadiusX="72" RadiusY="72" />
+                        </GeometryGroup>
+                    </Image.Clip>
+                    <Image.Effect>
+                        <DropShadowEffect Color="#000000"
+                                          BlurRadius="32"
+                                          ShadowDepth="18"
+                                          Direction="270"
+                                          Opacity="0.42" />
+                    </Image.Effect>
+                </Image>
 
-            <TextBlock x:Name="TimeText" Canvas.Left="0"
-                       Canvas.Top="532"
-                       Width="1388"
-                       Text="52:18"
-                       TextAlignment="Center"
-                       FontFamily="Segoe UI Light"
-                       FontSize="186"
-                       FontWeight="Light"
-                       Foreground="#EFF8FA"
-                       IsHitTestVisible="False" />
+                <Border Canvas.Left="101"
+                        Canvas.Top="74"
+                        Width="1186"
+                        Height="1238"
+                        CornerRadius="76"
+                        Background="{StaticResource DisplaySurfaceBrush}"
+                        BorderBrush="#383B3D"
+                        BorderThickness="8">
+                    <Border.Effect>
+                        <DropShadowEffect Color="#000000"
+                                          BlurRadius="22"
+                                          ShadowDepth="9"
+                                          Direction="315"
+                                          Opacity="0.52" />
+                    </Border.Effect>
+                </Border>
 
-            <!-- Chevron is redrawn because the live display covers the reference artwork. -->
-            <Path Data="M 651,1272 L 694,1228 L 737,1272"
-                  Stroke="#D8DEE1"
-                  StrokeThickness="12"
-                  StrokeStartLineCap="Round"
-                  StrokeEndLineCap="Round"
-                  StrokeLineJoin="Round"
-                  Fill="Transparent"
-                  IsHitTestVisible="False" />
+                <Border Canvas.Left="116"
+                        Canvas.Top="89"
+                        Width="1156"
+                        Height="1208"
+                        CornerRadius="66"
+                        Background="Transparent"
+                        BorderBrush="#20FFFFFF"
+                        BorderThickness="5"
+                        IsHitTestVisible="False" />
 
-            <!-- Real hit regions aligned to the reference buttons. They remain visually
-                 transparent at rest, so the approved relief/material stays untouched. -->
-            <Button Canvas.Left="198" Canvas.Top="1430" Width="132" Height="142"
-                    Style="{StaticResource ReferenceHitButton}" ToolTip="Adicionar 5 minutos"
-                    Click="Add5_Click" />
-            <Button Canvas.Left="358" Canvas.Top="1430" Width="150" Height="142"
-                    Style="{StaticResource ReferenceHitButton}" ToolTip="Adicionar 10 minutos"
-                    Click="Add10_Click" />
-            <Button Canvas.Left="534" Canvas.Top="1430" Width="150" Height="142"
-                    Style="{StaticResource ReferenceHitButton}" ToolTip="Adicionar 30 minutos"
-                    Click="Add30_Click" />
-            <Button Canvas.Left="713" Canvas.Top="1430" Width="150" Height="142"
-                    Style="{StaticResource ReferenceHitButton}" ToolTip="Adicionar 60 minutos"
-                    Click="Add60_Click" />
+                <Border x:Name="CompletionGlow"
+                        Canvas.Left="101"
+                        Canvas.Top="74"
+                        Width="1186"
+                        Height="1238"
+                        CornerRadius="76"
+                        Background="Transparent"
+                        BorderBrush="#FFFF4438"
+                        BorderThickness="15"
+                        Opacity="0"
+                        IsHitTestVisible="False" />
 
-            <Button Canvas.Left="292" Canvas.Top="1685" Width="110" Height="135"
-                    Style="{StaticResource ReferenceHitButton}" ToolTip="Reset"
-                    Click="Reset_Click" />
-            <Button x:Name="PauseButton" Canvas.Left="591" Canvas.Top="1666" Width="206" Height="185"
-                    Style="{StaticResource ReferenceHitButton}" ToolTip="Pausar"
-                    Click="Pause_Click" />
-            <Button Canvas.Left="888" Canvas.Top="1686" Width="130" Height="135"
-                    Style="{StaticResource ReferenceHitButton}" ToolTip="Mais (em breve)" />
-        </Canvas>
-    </Viewbox>
+                <local:ProgressRing x:Name="TimerProgressRing"
+                                    Canvas.Left="211"
+                                    Canvas.Top="166"
+                                    Width="966"
+                                    Height="966"
+                                    Progress="1"
+                                    TrackBrush="#404347"
+                                    RingBrush="#55DB8C"
+                                    Thickness="29"
+                                    SegmentCount="12"
+                                    GapDegrees="6.5"
+                                    UseProgressColor="True"
+                                    IsHitTestVisible="False" />
+
+                <TextBlock x:Name="ModeText"
+                           Canvas.Left="0"
+                           Canvas.Top="425"
+                           Width="1388"
+                           Text="TIMER"
+                           TextAlignment="Center"
+                           FontFamily="Segoe UI Light"
+                           FontSize="50"
+                           FontWeight="Light"
+                           Foreground="#AEB3B8"
+                           IsHitTestVisible="False" />
+
+                <TextBlock x:Name="TimeText"
+                           Canvas.Left="0"
+                           Canvas.Top="532"
+                           Width="1388"
+                           Text="60:00"
+                           TextAlignment="Center"
+                           FontFamily="Segoe UI Light"
+                           FontSize="186"
+                           FontWeight="Light"
+                           Foreground="#EFF8FA"
+                           IsHitTestVisible="False" />
+
+                <Path x:Name="DrawerChevron"
+                      Data="M 651,1272 L 694,1228 L 737,1272"
+                      Stroke="#D8DEE1"
+                      StrokeThickness="12"
+                      StrokeStartLineCap="Round"
+                      StrokeEndLineCap="Round"
+                      StrokeLineJoin="Round"
+                      Fill="Transparent"
+                      IsHitTestVisible="False" />
+
+                <Button Canvas.Left="590"
+                        Canvas.Top="1170"
+                        Width="210"
+                        Height="170"
+                        Style="{StaticResource InvisibleHitButton}"
+                        ToolTip="Recolher controles"
+                        Click="DrawerToggle_Click" />
+
+                <Button Canvas.Left="198" Canvas.Top="1430" Width="132" Height="142"
+                        Style="{StaticResource ReferenceHitButton}" ToolTip="Adicionar 5 minutos"
+                        Click="Add5_Click" />
+                <Button Canvas.Left="358" Canvas.Top="1430" Width="150" Height="142"
+                        Style="{StaticResource ReferenceHitButton}" ToolTip="Adicionar 10 minutos"
+                        Click="Add10_Click" />
+                <Button Canvas.Left="534" Canvas.Top="1430" Width="150" Height="142"
+                        Style="{StaticResource ReferenceHitButton}" ToolTip="Adicionar 30 minutos"
+                        Click="Add30_Click" />
+                <Button Canvas.Left="713" Canvas.Top="1430" Width="150" Height="142"
+                        Style="{StaticResource ReferenceHitButton}" ToolTip="Adicionar 60 minutos"
+                        Click="Add60_Click" />
+
+                <Button Canvas.Left="292" Canvas.Top="1685" Width="110" Height="135"
+                        Style="{StaticResource ReferenceHitButton}" ToolTip="Reset"
+                        Click="Reset_Click" />
+                <Button x:Name="PauseButton" Canvas.Left="591" Canvas.Top="1666" Width="206" Height="185"
+                        Style="{StaticResource ReferenceHitButton}" ToolTip="Pausar"
+                        Click="Pause_Click" />
+                <Button x:Name="MoreButton" Canvas.Left="888" Canvas.Top="1686" Width="130" Height="135"
+                        Style="{StaticResource ReferenceHitButton}" ToolTip="Mais opções"
+                        Click="More_Click" />
+            </Canvas>
+        </Viewbox>
+    </Grid>
 </Window>

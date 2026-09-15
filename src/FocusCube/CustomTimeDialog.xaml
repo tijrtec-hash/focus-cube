@@ -1,0 +1,66 @@
+<Window x:Class="FocusCube.CustomTimeDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Definir tempo"
+        Width="320"
+        Height="190"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False"
+        Background="#202225"
+        Foreground="#F1F4F5">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <TextBlock Text="Tempo personalizado"
+                   FontSize="18"
+                   FontWeight="SemiBold" />
+
+        <TextBlock Grid.Row="1"
+                   Margin="0,8,0,8"
+                   Foreground="#ADB3B8"
+                   Text="Use minutos, MM:SS ou H:MM:SS." />
+
+        <TextBox x:Name="TimeInput"
+                 Grid.Row="2"
+                 Height="34"
+                 Padding="8,4"
+                 FontSize="16"
+                 Background="#141618"
+                 Foreground="#F4F7F8"
+                 BorderBrush="#4A4F54"
+                 CaretBrush="#55DB8C"
+                 KeyDown="TimeInput_KeyDown" />
+
+        <Grid Grid.Row="3" Margin="0,12,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <TextBlock x:Name="ErrorText"
+                       VerticalAlignment="Center"
+                       Foreground="#FF766E"
+                       FontSize="12" />
+
+            <Button Grid.Column="1"
+                    Margin="8,0,0,0"
+                    Padding="14,6"
+                    Content="Cancelar"
+                    IsCancel="True" />
+
+            <Button Grid.Column="2"
+                    Margin="8,0,0,0"
+                    Padding="14,6"
+                    Content="Iniciar"
+                    IsDefault="True"
+                    Click="Start_Click" />
+        </Grid>
+    </Grid>
+</Window>

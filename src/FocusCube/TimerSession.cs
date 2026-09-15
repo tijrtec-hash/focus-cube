@@ -1,8 +1,8 @@
 namespace FocusCube;
 
 /// <summary>
-/// Holds the countdown state independently from the WPF rendering layer.
-/// The UI clock periodically calls Refresh so the countdown is based on a deadline,
+/// Holds countdown state independently from the WPF rendering layer.
+/// The UI periodically calls Refresh so the countdown is based on a deadline,
 /// avoiding cumulative drift from decrementing one second per tick.
 /// </summary>
 public sealed class TimerSession
@@ -15,11 +15,18 @@ public sealed class TimerSession
             throw new ArgumentOutOfRangeException(nameof(baseDuration));
 
         BaseDuration = baseDuration;
+        ResetDuration = baseDuration;
         SessionDuration = baseDuration;
         Remaining = baseDuration;
     }
 
     public TimeSpan BaseDuration { get; }
+
+    /// <summary>
+    /// Duration restored by Reset. It starts at BaseDuration and changes when
+    /// the user explicitly selects a new exact/custom duration.
+    /// </summary>
+    public TimeSpan ResetDuration { get; private set; }
 
     /// <summary>
     /// Duration used as the denominator for progress during the current session.
@@ -30,6 +37,8 @@ public sealed class TimerSession
     public TimeSpan Remaining { get; private set; }
 
     public bool IsRunning { get; private set; }
+
+    public bool IsCompleted => Remaining <= TimeSpan.Zero;
 
     public double Progress
         => SessionDuration <= TimeSpan.Zero
@@ -43,8 +52,8 @@ public sealed class TimerSession
 
         if (Remaining <= TimeSpan.Zero)
         {
-            SessionDuration = BaseDuration;
-            Remaining = BaseDuration;
+            SessionDuration = ResetDuration;
+            Remaining = ResetDuration;
         }
 
         IsRunning = true;
@@ -67,12 +76,12 @@ public sealed class TimerSession
     }
 
     /// <summary>
-    /// Restores the original 60-minute session. Running/paused state is preserved.
+    /// Restores the currently selected exact duration. Running/paused state is preserved.
     /// </summary>
     public void Reset(DateTimeOffset now)
     {
-        SessionDuration = BaseDuration;
-        Remaining = BaseDuration;
+        SessionDuration = ResetDuration;
+        Remaining = ResetDuration;
 
         if (IsRunning)
             _deadline = now + Remaining;
@@ -81,8 +90,24 @@ public sealed class TimerSession
     }
 
     /// <summary>
+    /// Replaces the current session by an exact duration and makes it the new reset target.
+    /// </summary>
+    public void SetDuration(TimeSpan duration, DateTimeOffset now, bool startImmediately = true)
+    {
+        if (duration <= TimeSpan.Zero)
+            throw new ArgumentOutOfRangeException(nameof(duration));
+
+        ResetDuration = duration;
+        SessionDuration = duration;
+        Remaining = duration;
+        IsRunning = startImmediately;
+        _deadline = startImmediately ? now + duration : null;
+    }
+
+    /// <summary>
     /// Adds time to the current session. If the previous countdown had already ended,
     /// the added amount becomes the new current session duration but remains paused.
+    /// Quick-add does not change ResetDuration.
     /// </summary>
     public void Add(TimeSpan amount, DateTimeOffset now)
     {

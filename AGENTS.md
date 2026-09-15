@@ -35,28 +35,32 @@ Não pedir que o usuário reconte decisões já registradas.
 - Base técnica: C# / WPF / .NET 8.
 - Executável esperado: `FocusCube.exe`.
 - O aplicativo deve parecer um pequeno objeto digital/hardware premium, não um dashboard.
+- Escala visual aprovada: `170 × 251` DIPs expandido.
+- Estratégia visual híbrida aprovada: carcaça/gaveta/relevo estático podem usar a textura raster derivada da referência; timer, aro, estados, hit targets e comportamento permanecem elementos reais do WPF.
 - O timer é o foco visual principal.
 - Display escuro e recuado.
-- Corpo e gaveta com relevo, bevel, highlights e sombras sutis.
 - Gaveta inferior integrada ao mesmo objeto.
-- Botões rápidos: `+5`, `+10`, `+30`, `+60` minutos.
-- Esses botões adicionam tempo à sessão atual.
-- O aro de progresso deve diminuir com o tempo restante.
-- Cor do aro: `verde → amarelo → laranja → vermelho`, ficando vermelho somente perto do fim.
-- Estado compacto: corpo + display + aro + controle de expansão.
-- Estado expandido: estado compacto + gaveta.
-- Estratégia visual híbrida aprovada para VIS-01: a carcaça, gaveta e relevo estático podem usar textura raster derivada da referência aprovada; timer, aro, estados, hit targets e comportamento continuam sendo elementos reais do WPF.
-- A referência raster não deve transformar o timer em imagem estática: conteúdo temporal e progresso permanecem dinâmicos e vetoriais.
+- Estado compacto: somente corpo/display/aro/controle de expansão.
+- Estado expandido: corpo + gaveta.
+- Botões rápidos `+5`, `+10`, `+30`, `+60` adicionam tempo à sessão corrente.
+- Menu `...` oferece tempo exato/personalizado, som, always-on-top, gaveta e saída.
+- O aro diminui com o tempo restante e usa a sequência `verde → amarelo → laranja → vermelho`.
+- Ao terminar, o app usa alerta visual e som opcional.
+- Configurações leves ficam em `%LOCALAPPDATA%\FocusCube\settings.json`.
 - Não trocar tecnologia sem decisão explícita do usuário.
 
 ## 5. Interação aprovada
 
 - Arrastar área não interativa move o widget.
+- Ao aproximar das bordas/cantos, o widget faz snap.
+- Posição é persistida entre execuções.
 - Pause/play alterna a sessão.
-- Reset restaura a sessão.
-- Gaveta abre e fecha com animação.
-- Futuro snap deve respeitar bordas/cantos da tela.
-- Always-on-top deve ser testado no Windows real.
+- Reset restaura a duração exata selecionada mais recentemente; inicialmente `60:00`.
+- `+5/+10/+30/+60` não mudam o alvo do reset, apenas estendem a sessão corrente.
+- Gaveta abre/fecha com animação e preserva o alinhamento inferior quando dockada embaixo.
+- `Space` pausa/continua; `R` reseta; `E` expande/recolhe quando a janela tem foco.
+- Always-on-top pode ser ligado/desligado pelo menu e é persistido.
+- Som ao terminar pode ser ligado/desligado pelo menu e é persistido.
 
 ## 6. Workflow oficial — simples, pelo navegador
 
@@ -85,6 +89,7 @@ GitHub Actions é o caminho escolhido para compilar/publicar o executável de te
 | Planejado | requisito documentado |
 | Implementado no código | arquivos pertinentes inspecionados |
 | Verificado estruturalmente | checagem estrutural executada |
+| Testes automatizados aprovados | GitHub Actions executou os testes com sucesso |
 | Compilação aprovada | GitHub Actions verde para a versão correspondente |
 | Validado visualmente | usuário executou e comparou com a referência |
 | Validado manualmente | usuário testou o comportamento e relatou o resultado |
@@ -97,10 +102,10 @@ Uma etapa não substitui outra. Build verde não comprova fidelidade visual ou i
 - **BASE-01 / 0.1.x:** GitHub Actions + primeiro executável.
 - **VIS-01 / 0.2.x:** carcaça, display, gaveta, relevo e fidelidade visual.
 - **TIMER-01 / 0.3.x:** countdown, pause/play, reset e incrementos.
-- **RING-01 / 0.4.x:** progresso proporcional e cor verde→vermelho.
+- **RING-01 / 0.4.x:** progresso proporcional, cor e estado final.
 - **DRAWER-01 / 0.5.x:** expansão/recolhimento e microinterações.
 - **DOCK-01 / 0.6.x:** drag refinado, snap e persistência.
-- **POLISH-01:** DPI, tipografia, animações e acabamento.
+- **POLISH-01 / 1.0.x:** menu, alerta, customização leve, DPI/acabamento e release candidate.
 
 ## 9. Documentação
 
