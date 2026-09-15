@@ -45,7 +45,8 @@ Não pedir que o usuário reconte decisões já registradas.
 - Cor do aro: `verde → amarelo → laranja → vermelho`, ficando vermelho somente perto do fim.
 - Estado compacto: corpo + display + aro + controle de expansão.
 - Estado expandido: estado compacto + gaveta.
-- A interface deve ser construída prioritariamente com elementos reais do WPF; imagens rasterizadas são apoio, não substituto para timer, aro, botões ou gaveta.
+- Estratégia visual híbrida aprovada para VIS-01: a carcaça, gaveta e relevo estático podem usar textura raster derivada da referência aprovada; timer, aro, estados, hit targets e comportamento continuam sendo elementos reais do WPF.
+- A referência raster não deve transformar o timer em imagem estática: conteúdo temporal e progresso permanecem dinâmicos e vetoriais.
 - Não trocar tecnologia sem decisão explícita do usuário.
 
 ## 5. Interação aprovada

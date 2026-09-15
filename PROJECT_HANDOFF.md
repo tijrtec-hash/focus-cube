@@ -1,57 +1,54 @@
 # PROJECT_HANDOFF.md — FOCUS CUBE
 
 **Atualização:** 15/09/2026  
-**Checkpoint:** VIS-01 / refinamento visual 0.2.0  
-**Versão de trabalho:** 0.2.0  
-**Validação existente:** o primeiro executável 0.1.0 foi gerado e executado no Windows; o usuário enviou captura real e rejeitou a fidelidade visual por tamanho excessivo e distância da referência.  
-**Etapa atual:** compilar a revisão VIS-01 0.2.0 no GitHub Actions e comparar novamente com a referência.
+**Checkpoint:** VIS-01 / fidelidade híbrida 0.2.1  
+**Versão de trabalho:** 0.2.1  
+**Validação existente:** 0.1.0 e 0.2.0 foram compiladas/executadas no Windows. O usuário rejeitou ambas visualmente; na 0.2.0 o tamanho ainda foi considerado excessivo e o material continuou distante da referência.  
+**Etapa atual:** compilar 0.2.1 e validar a nova estratégia híbrida baseada diretamente na referência aprovada.
 
 ## 1. Estado vigente
 
 O Focus Cube é um timer/widget desktop para Windows em C# + WPF + .NET 8.
 
-O primeiro executável real confirmou que a base WPF abre e renderiza como widget. A captura enviada pelo usuário mostrou dois problemas principais:
+A captura real da 0.2.0 mostrou que a redução anterior foi insuficiente e que a reconstrução puramente vetorial ainda não reproduzia com fidelidade o relevo/material da ilustração. A 0.2.1 muda a estratégia visual de VIS-01:
 
-- o conjunto ficou grande demais no desktop;
-- o shell estava visualmente mais simples e escuro que a referência aprovada.
-
-A revisão 0.2.0 implementa no código:
-
-- janela reduzida de `360 × 486` para `260 × 390` DIPs;
-- proporção geral mais próxima da referência vertical aprovada;
-- carcaça mais clara, metálica e com highlights de borda;
-- display maior em relação à carcaça, com menos molduras consumindo área útil;
-- timer `52:18` maior proporcionalmente;
-- aro mais espesso e segmentado em 12 partes;
-- cor automática do aro preparada para `verde → amarelo → laranja → vermelho` conforme `Progress` diminui;
-- chevron integrado dentro da face principal, em vez de uma ponte externa;
-- gaveta mais próxima da proporção da referência;
-- botões rápidos com relevo, highlight, sombra e glow no hover;
-- reset e menu visualmente planos; pause permanece como botão físico elevado;
-- workflow corrigido para restaurar explicitamente o runtime `win-x64` antes de build/publish.
+- tamanho padrão reduzido de `260 × 390` para `170 × 251` DIPs;
+- toda a composição passa a usar uma superfície de design `1388 × 2048`, exatamente na proporção da referência;
+- `Viewbox` reduz essa superfície para o tamanho do widget sem alterar proporções internas;
+- carcaça, gaveta, botões em repouso, reflexos e relevo usam a própria referência aprovada como textura estática;
+- o fundo externo da referência é recortado por geometria, preservando transparência ao redor do widget;
+- o display original da referência é coberto por uma superfície escura limpa;
+- `TIMER`, `52:18`, aro e chevron são redesenhados por WPF sobre essa superfície;
+- aro continua vetorial, segmentado em 12 partes e preparado para `verde → amarelo → laranja → vermelho`;
+- os botões da gaveta possuem hit targets reais e transparentes alinhados sobre a arte de referência;
+- a interface continua funcionalmente preparada para receber countdown e interações reais sem depender de texto/ring rasterizados.
 
 Ainda não implementado:
 
 - countdown real;
 - pause/reset/incrementos funcionais;
 - ligação do aro ao timer real;
-- expansão/recolhimento da gaveta;
+- expansão/recolhimento;
 - snap/persistência.
 
-A referência visual aprovada permanece em:
+Referência aprovada:
 
 `docs/reference/widget-expanded-approved.png`
 
+Asset usado pelo executável para o shell:
+
+`src/FocusCube/Assets/widget-shell-reference.png`
+
 ## 2. Próxima ação exata
 
-1. Enviar/substituir os arquivos da revisão 0.2.0 no mesmo repositório GitHub pelo navegador.
+1. Enviar/substituir os arquivos da revisão 0.2.1 no mesmo repositório GitHub pelo navegador.
 2. Confirmar a alteração no site.
 3. Abrir **Actions → Windows build and publish**.
 4. Se vermelho, enviar somente o primeiro erro relevante da nova execução.
 5. Se verde, baixar **FocusCube-win-x64**.
 6. Extrair e abrir `FocusCube.exe`.
-7. Executar `TESTE_VIS01.md` e enviar uma captura do widget no desktop.
-8. Comparar tamanho, proporções, aro, relevo e gaveta com a referência antes de iniciar o motor do timer.
+7. Enviar uma captura de tela inteira com o widget aberto.
+8. Validar primeiro **tamanho** e **fidelidade do shell**; somente depois ajustar tipografia/aro em detalhes ou iniciar TIMER-01.
 
 ## 3. Regras do workflow atual
 
@@ -64,51 +61,55 @@ A referência visual aprovada permanece em:
 
 ## 4. Decisões visuais vigentes
 
+- widget pequeno e discreto no desktop;
 - timer grande e dominante;
-- widget pequeno no desktop;
-- display preto/recuado ocupando a maior parte da face superior;
-- carcaça grafite/cinza com relevo, bevel e highlights sutis;
-- gaveta inferior integrada e ligeiramente mais estreita que o corpo;
-- botões luminosos `+5`, `+10`, `+30`, `+60`;
+- shell deve se aproximar diretamente da referência aprovada;
+- estratégia híbrida: material/relevo estático pode vir da referência raster, enquanto conteúdo dinâmico permanece WPF;
+- display preto/recuado;
+- gaveta inferior integrada e mais estreita que o corpo;
+- botões `+5`, `+10`, `+30`, `+60` preservam o relevo da referência;
 - aro segmentado e funcional ao redor do timer;
 - cor do aro: `verde → amarelo → laranja → vermelho` conforme o tempo acaba;
-- reset e menu secundários discretos; pause é o controle físico principal;
-- sem dashboard permanente;
-- interface principal construída com elementos reais do WPF.
+- reset e menu secundários; pause é o controle principal;
+- sem dashboard permanente.
 
 ## 5. Validação disponível
 
 Comprovado pelo usuário:
 
-- um `FocusCube.exe` da base 0.1.0 foi executado no Windows;
-- janela sem borda/transparente abriu;
-- widget foi renderizado;
-- a fidelidade VIS-01 da base 0.1.0 **não foi aprovada**;
-- problemas relatados: tamanho excessivo e visual distante da referência.
+- `FocusCube.exe` foi executado no Windows;
+- GitHub Actions conseguiu produzir versão executável após correção do restore `win-x64`;
+- janela transparente/always-on-top foi renderizada;
+- 0.1.0 foi rejeitada por tamanho e distância visual;
+- 0.2.0 ficou menor, mas ainda foi rejeitada por tamanho e fidelidade insuficientes.
 
-No ambiente de preparação da 0.2.0 foi possível somente inspeção/checagem estrutural. A revisão 0.2.0 ainda não foi compilada nem vista no Windows.
+A 0.2.1 foi inspecionada estruturalmente neste ambiente, mas ainda não foi compilada nem vista no Windows.
 
 ## 6. Limites atuais
 
-- tipografia pode continuar diferindo da imagem gerada de referência;
-- materiais WPF dependem de teste real para ajuste fino;
-- o aro possui lógica visual de cor, mas ainda recebe `Progress` estático;
-- o tamanho em DIPs pode variar visualmente conforme escala/DPI do Windows; o teste real dirá se é necessário reduzir mais.
+- a carcaça híbrida prioriza fidelidade à referência em detrimento de permitir recoloração completa do material sem novos assets;
+- tipografia do Windows pode diferir levemente da tipografia da imagem conceitual;
+- `Progress=0.87` continua estático durante VIS-01;
+- o tamanho em DIPs ainda depende de DPI/escala do Windows, portanto a captura real continua sendo a evidência decisiva.
 
 ## 7. Histórico resumido
 
 ### BASE-01 / 0.1.0
 
-- documentação de continuidade criada;
-- projeto WPF criado;
-- shell visual inicial implementado;
-- GitHub Actions preparado;
-- primeiro executável executado pelo usuário;
-- VIS-01 rejeitado por tamanho e fidelidade.
+- primeiro shell WPF e GitHub Actions;
+- executável validado no Windows;
+- VIS-01 rejeitado.
 
 ### VIS-01 / 0.2.0
 
-- reduzido o footprint do widget;
-- refinados material, display, proporções e controles;
-- criado aro segmentado com paleta dinâmica verde→vermelho;
-- corrigido workflow `win-x64` para refletir o hotfix usado no GitHub.
+- redução para `260 × 390`;
+- refinamento puramente vetorial de material/aro/gaveta;
+- compilado e executado;
+- ainda rejeitado por tamanho e distância visual.
+
+### VIS-01 / 0.2.1
+
+- redução para `170 × 251`;
+- adoção de superfície de design baseada nas coordenadas exatas da referência;
+- shell híbrido raster + display/timer/aro WPF real;
+- hit targets transparentes preservam os botões funcionais sem sacrificar o acabamento visual.

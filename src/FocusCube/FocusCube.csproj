@@ -8,4 +8,9 @@
     <AssemblyName>FocusCube</AssemblyName>
     <RootNamespace>FocusCube</RootNamespace>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Assets\widget-shell-reference.png" />
+    <Resource Include="Assets\widget-shell-reference.png" />
+  </ItemGroup>
 </Project>

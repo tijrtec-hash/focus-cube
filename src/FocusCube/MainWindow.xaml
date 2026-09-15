@@ -3,8 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:FocusCube.Controls"
         Title="Focus Cube"
-        Width="260"
-        Height="390"
+        Width="170"
+        Height="251"
         WindowStyle="None"
         ResizeMode="NoResize"
         AllowsTransparency="True"
@@ -15,177 +15,43 @@
         UseLayoutRounding="True">
 
     <Window.Resources>
-        <LinearGradientBrush x:Key="BodyBrush" StartPoint="0,0" EndPoint="0,1">
-            <GradientStop Color="#5A5D5F" Offset="0" />
-            <GradientStop Color="#45484A" Offset="0.18" />
-            <GradientStop Color="#343739" Offset="0.62" />
-            <GradientStop Color="#282B2D" Offset="1" />
-        </LinearGradientBrush>
-
-        <LinearGradientBrush x:Key="BodyInnerBrush" StartPoint="0,0" EndPoint="1,1">
-            <GradientStop Color="#363A3C" Offset="0" />
-            <GradientStop Color="#202426" Offset="0.55" />
-            <GradientStop Color="#171A1C" Offset="1" />
-        </LinearGradientBrush>
-
-        <LinearGradientBrush x:Key="DisplayFrameBrush" StartPoint="0,0" EndPoint="0,1">
-            <GradientStop Color="#45494B" Offset="0" />
-            <GradientStop Color="#272A2C" Offset="0.22" />
-            <GradientStop Color="#151819" Offset="1" />
-        </LinearGradientBrush>
-
-        <LinearGradientBrush x:Key="DisplayBrush" StartPoint="0,0" EndPoint="0,1">
-            <GradientStop Color="#101213" Offset="0" />
-            <GradientStop Color="#090A0B" Offset="0.55" />
+        <RadialGradientBrush x:Key="DisplaySurfaceBrush"
+                             Center="0.50,0.35"
+                             GradientOrigin="0.50,0.28"
+                             RadiusX="0.72"
+                             RadiusY="0.82">
+            <GradientStop Color="#242528" Offset="0" />
+            <GradientStop Color="#161719" Offset="0.42" />
+            <GradientStop Color="#0A0B0C" Offset="0.82" />
             <GradientStop Color="#050607" Offset="1" />
-        </LinearGradientBrush>
+        </RadialGradientBrush>
 
-        <LinearGradientBrush x:Key="DrawerBrush" StartPoint="0,0" EndPoint="0,1">
-            <GradientStop Color="#5B5D5F" Offset="0" />
-            <GradientStop Color="#4A4D4F" Offset="0.34" />
-            <GradientStop Color="#3B3E40" Offset="0.74" />
-            <GradientStop Color="#313436" Offset="1" />
-        </LinearGradientBrush>
-
-        <LinearGradientBrush x:Key="RaisedButtonBrush" StartPoint="0,0" EndPoint="0,1">
-            <GradientStop Color="#505456" Offset="0" />
-            <GradientStop Color="#44484A" Offset="0.42" />
-            <GradientStop Color="#373B3D" Offset="1" />
-        </LinearGradientBrush>
-
-        <Style x:Key="IncrementButtonStyle" TargetType="Button">
-            <Setter Property="Foreground" Value="#F0F4F4" />
-            <Setter Property="Background" Value="{StaticResource RaisedButtonBrush}" />
-            <Setter Property="BorderBrush" Value="#777B7D" />
-            <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="FontFamily" Value="Segoe UI" />
-            <Setter Property="Cursor" Value="Hand" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Grid RenderTransformOrigin="0.5,0.5">
-                            <Border CornerRadius="10"
-                                    Background="#151718"
-                                    Margin="0,2,0,0">
-                                <Border.Effect>
-                                    <DropShadowEffect BlurRadius="6" ShadowDepth="3" Direction="270" Opacity="0.58" Color="#000000" />
-                                </Border.Effect>
-                            </Border>
-                            <Border x:Name="Chrome"
-                                    Background="{TemplateBinding Background}"
-                                    BorderBrush="{TemplateBinding BorderBrush}"
-                                    BorderThickness="{TemplateBinding BorderThickness}"
-                                    CornerRadius="10"
-                                    Padding="3,3"
-                                    Margin="0,0,0,2">
-                                <Grid>
-                                    <Border CornerRadius="9"
-                                            BorderBrush="#36FFFFFF"
-                                            BorderThickness="1,1,1,0"
-                                            IsHitTestVisible="False" />
-                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                </Grid>
-                            </Border>
-                        </Grid>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Chrome" Property="BorderBrush" Value="#8CF3E3" />
-                                <Setter TargetName="Chrome" Property="Effect">
-                                    <Setter.Value>
-                                        <DropShadowEffect BlurRadius="11" ShadowDepth="0" Opacity="0.45" Color="#5BE8D3" />
-                                    </Setter.Value>
-                                </Setter>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Chrome" Property="RenderTransform">
-                                    <Setter.Value>
-                                        <TranslateTransform Y="2" />
-                                    </Setter.Value>
-                                </Setter>
-                                <Setter TargetName="Chrome" Property="Margin" Value="0,1,0,1" />
-                                <Setter TargetName="Chrome" Property="Background" Value="#333739" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style x:Key="FlatIconButtonStyle" TargetType="Button">
-            <Setter Property="Width" Value="48" />
-            <Setter Property="Height" Value="42" />
-            <Setter Property="Foreground" Value="#C3C9CA" />
-            <Setter Property="Background" Value="Transparent" />
+        <!-- The resting button artwork comes from the approved visual reference.
+             These transparent buttons preserve real hit targets without changing the shell. -->
+        <Style x:Key="ReferenceHitButton" TargetType="Button">
+            <Setter Property="Background" Value="#01000000" />
+            <Setter Property="BorderBrush" Value="Transparent" />
             <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="FontFamily" Value="Segoe UI Symbol" />
-            <Setter Property="FontSize" Value="21" />
             <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Focusable" Value="False" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="Chrome" Background="Transparent" CornerRadius="10">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        <Border x:Name="HitChrome"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="34">
+                            <ContentPresenter />
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Chrome" Property="Background" Value="#1FFFFFFF" />
-                                <Setter Property="Foreground" Value="#F3F7F7" />
+                                <Setter TargetName="HitChrome" Property="BorderBrush" Value="#6085F2E8" />
+                                <Setter TargetName="HitChrome" Property="BorderThickness" Value="5" />
+                                <Setter TargetName="HitChrome" Property="Background" Value="#0D8EF5EA" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Chrome" Property="Background" Value="#26000000" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style x:Key="PauseButtonStyle" TargetType="Button">
-            <Setter Property="Width" Value="48" />
-            <Setter Property="Height" Value="48" />
-            <Setter Property="Foreground" Value="#72E6F0" />
-            <Setter Property="Background" Value="{StaticResource RaisedButtonBrush}" />
-            <Setter Property="BorderBrush" Value="#1C1E1F" />
-            <Setter Property="BorderThickness" Value="1.5" />
-            <Setter Property="FontFamily" Value="Segoe UI Symbol" />
-            <Setter Property="FontSize" Value="24" />
-            <Setter Property="Cursor" Value="Hand" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Grid>
-                            <Border CornerRadius="12" Background="#141617" Margin="0,3,0,0">
-                                <Border.Effect>
-                                    <DropShadowEffect BlurRadius="7" ShadowDepth="4" Direction="270" Opacity="0.6" Color="#000000" />
-                                </Border.Effect>
-                            </Border>
-                            <Border x:Name="Chrome"
-                                    CornerRadius="12"
-                                    Background="{TemplateBinding Background}"
-                                    BorderBrush="{TemplateBinding BorderBrush}"
-                                    BorderThickness="{TemplateBinding BorderThickness}"
-                                    Margin="0,0,0,3">
-                                <Grid>
-                                    <Border CornerRadius="11" BorderBrush="#3FFFFFFF" BorderThickness="1,1,1,0" IsHitTestVisible="False" />
-                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                </Grid>
-                            </Border>
-                        </Grid>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Chrome" Property="BorderBrush" Value="#6DDFE9" />
-                                <Setter TargetName="Chrome" Property="Effect">
-                                    <Setter.Value>
-                                        <DropShadowEffect BlurRadius="10" ShadowDepth="0" Opacity="0.35" Color="#59DDE8" />
-                                    </Setter.Value>
-                                </Setter>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Chrome" Property="RenderTransform">
-                                    <Setter.Value>
-                                        <TranslateTransform Y="2" />
-                                    </Setter.Value>
-                                </Setter>
+                                <Setter TargetName="HitChrome" Property="Background" Value="#22000000" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -194,178 +60,130 @@
         </Style>
     </Window.Resources>
 
-    <Grid Margin="6">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="248" />
-            <RowDefinition Height="130" />
-        </Grid.RowDefinitions>
+    <!--
+        VIS-01 design surface follows the approved 1388 × 2048 reference exactly.
+        Viewbox scales the complete object down to the desktop widget size while
+        keeping all coordinates/proportions tied to that reference.
+    -->
+    <Viewbox Stretch="Fill" StretchDirection="Both">
+        <Canvas Width="1388" Height="2048" Background="Transparent">
 
-        <!-- Upper cube/display body -->
-        <Border Grid.Row="0"
-                CornerRadius="25"
-                Background="{StaticResource BodyBrush}"
-                BorderBrush="#74787A"
-                BorderThickness="1">
-            <Border.Effect>
-                <DropShadowEffect BlurRadius="18" ShadowDepth="8" Direction="270" Opacity="0.58" Color="#000000" />
-            </Border.Effect>
+            <!-- Static material shell. The reference itself provides the metal/plastic
+                 relief that proved difficult to approximate convincingly with flat WPF brushes. -->
+            <Image Canvas.Left="0"
+                   Canvas.Top="0"
+                   Width="1388"
+                   Height="2048"
+                   Source="Assets/widget-shell-reference.png"
+                   Stretch="Fill"
+                   SnapsToDevicePixels="True">
+                <Image.Clip>
+                    <GeometryGroup FillRule="Nonzero">
+                        <RectangleGeometry Rect="34,8,1320,1368" RadiusX="92" RadiusY="92" />
+                        <RectangleGeometry Rect="104,1274,1178,724" RadiusX="72" RadiusY="72" />
+                    </GeometryGroup>
+                </Image.Clip>
+                <Image.Effect>
+                    <DropShadowEffect Color="#000000"
+                                      BlurRadius="32"
+                                      ShadowDepth="18"
+                                      Direction="270"
+                                      Opacity="0.42" />
+                </Image.Effect>
+            </Image>
 
-            <Grid>
-                <Border CornerRadius="24"
-                        Margin="2"
-                        BorderBrush="#4AFFFFFF"
-                        BorderThickness="1,1,0,0"
-                        IsHitTestVisible="False" />
+            <!-- Clean live display surface covers the timer/ring baked into the reference,
+                 while keeping the approved frame and physical shell around it. -->
+            <Border Canvas.Left="101"
+                    Canvas.Top="74"
+                    Width="1186"
+                    Height="1238"
+                    CornerRadius="76"
+                    Background="{StaticResource DisplaySurfaceBrush}"
+                    BorderBrush="#383B3D"
+                    BorderThickness="8">
+                <Border.Effect>
+                    <DropShadowEffect Color="#000000"
+                                      BlurRadius="22"
+                                      ShadowDepth="9"
+                                      Direction="315"
+                                      Opacity="0.52" />
+                </Border.Effect>
+            </Border>
 
-                <Border Margin="8"
-                        CornerRadius="21"
-                        Background="{StaticResource BodyInnerBrush}"
-                        BorderBrush="#171A1B"
-                        BorderThickness="1.5">
-                    <Border.Effect>
-                        <DropShadowEffect BlurRadius="6" ShadowDepth="2" Direction="315" Opacity="0.5" Color="#000000" />
-                    </Border.Effect>
+            <Border Canvas.Left="116"
+                    Canvas.Top="89"
+                    Width="1156"
+                    Height="1208"
+                    CornerRadius="66"
+                    Background="Transparent"
+                    BorderBrush="#20FFFFFF"
+                    BorderThickness="5"
+                    IsHitTestVisible="False" />
 
-                    <Border Margin="4"
-                            CornerRadius="18"
-                            Background="{StaticResource DisplayFrameBrush}"
-                            BorderBrush="#737678"
-                            BorderThickness="1">
-                        <Grid Margin="4">
-                            <Border CornerRadius="15"
-                                    Background="{StaticResource DisplayBrush}"
-                                    BorderBrush="#080A0B"
-                                    BorderThickness="1" />
+            <!-- Live progress ring. 0.87 is still static during VIS-01. -->
+            <local:ProgressRing Canvas.Left="211"
+                                Canvas.Top="166"
+                                Width="966"
+                                Height="966"
+                                Progress="0.87"
+                                TrackBrush="#404347"
+                                RingBrush="#55DB8C"
+                                Thickness="29"
+                                SegmentCount="12"
+                                GapDegrees="6.5"
+                                UseProgressColor="True"
+                                IsHitTestVisible="False" />
 
-                            <Grid Margin="7">
-                                <local:ProgressRing Width="190"
-                                                    Height="190"
-                                                    Progress="0.87"
-                                                    TrackBrush="#373B3D"
-                                                    RingBrush="#55DB8C"
-                                                    Thickness="10"
-                                                    SegmentCount="12"
-                                                    GapDegrees="7"
-                                                    UseProgressColor="True"
-                                                    HorizontalAlignment="Center"
-                                                    VerticalAlignment="Center"
-                                                    Margin="0,-1,0,0" />
+            <TextBlock Canvas.Left="0"
+                       Canvas.Top="425"
+                       Width="1388"
+                       Text="TIMER"
+                       TextAlignment="Center"
+                       FontFamily="Segoe UI Light"
+                       FontSize="50"
+                       FontWeight="Light"
+                       Foreground="#AEB3B8"
+                       IsHitTestVisible="False" />
 
-                                <TextBlock Text="TIMER"
-                                           FontFamily="Segoe UI"
-                                           FontWeight="Normal"
-                                           FontSize="14"
-                                           Foreground="#AEB4B6"
-                                           HorizontalAlignment="Center"
-                                           VerticalAlignment="Center"
-                                           Margin="0,-58,0,0" />
+            <TextBlock Canvas.Left="0"
+                       Canvas.Top="532"
+                       Width="1388"
+                       Text="52:18"
+                       TextAlignment="Center"
+                       FontFamily="Segoe UI Light"
+                       FontSize="186"
+                       FontWeight="Light"
+                       Foreground="#EFF8FA"
+                       IsHitTestVisible="False" />
 
-                                <TextBlock Text="52:18"
-                                           FontFamily="Bahnschrift SemiCondensed"
-                                           FontWeight="Normal"
-                                           FontSize="55"
-                                           Foreground="#EDF4F5"
-                                           HorizontalAlignment="Center"
-                                           VerticalAlignment="Center"
-                                           Margin="0,5,0,0" />
+            <!-- Chevron is redrawn because the live display covers the reference artwork. -->
+            <Path Data="M 651,1272 L 694,1228 L 737,1272"
+                  Stroke="#D8DEE1"
+                  StrokeThickness="12"
+                  StrokeStartLineCap="Round"
+                  StrokeEndLineCap="Round"
+                  StrokeLineJoin="Round"
+                  Fill="Transparent"
+                  IsHitTestVisible="False" />
 
-                                <TextBlock Text="⌃"
-                                           FontFamily="Segoe UI Symbol"
-                                           FontSize="22"
-                                           FontWeight="SemiBold"
-                                           Foreground="#CFD5D6"
-                                           HorizontalAlignment="Center"
-                                           VerticalAlignment="Bottom"
-                                           Margin="0,0,0,3" />
-                            </Grid>
-                        </Grid>
-                    </Border>
-                </Border>
-            </Grid>
-        </Border>
+            <!-- Real hit regions aligned to the reference buttons. They remain visually
+                 transparent at rest, so the approved relief/material stays untouched. -->
+            <Button Canvas.Left="198" Canvas.Top="1430" Width="132" Height="142"
+                    Style="{StaticResource ReferenceHitButton}" ToolTip="Adicionar 5 minutos" />
+            <Button Canvas.Left="358" Canvas.Top="1430" Width="150" Height="142"
+                    Style="{StaticResource ReferenceHitButton}" ToolTip="Adicionar 10 minutos" />
+            <Button Canvas.Left="534" Canvas.Top="1430" Width="150" Height="142"
+                    Style="{StaticResource ReferenceHitButton}" ToolTip="Adicionar 30 minutos" />
+            <Button Canvas.Left="713" Canvas.Top="1430" Width="150" Height="142"
+                    Style="{StaticResource ReferenceHitButton}" ToolTip="Adicionar 60 minutos" />
 
-        <!-- Drawer: visually tucked under the upper body -->
-        <Border Grid.Row="1"
-                Width="222"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Stretch"
-                Margin="0,-5,0,0"
-                CornerRadius="0,0,19,19"
-                Background="{StaticResource DrawerBrush}"
-                BorderBrush="#686C6E"
-                BorderThickness="1">
-            <Border.Effect>
-                <DropShadowEffect BlurRadius="14" ShadowDepth="7" Direction="270" Opacity="0.55" Color="#000000" />
-            </Border.Effect>
-
-            <Grid>
-                <Border CornerRadius="0,0,18,18"
-                        Margin="2"
-                        BorderBrush="#38FFFFFF"
-                        BorderThickness="1,0,0,1"
-                        IsHitTestVisible="False" />
-
-                <Grid Margin="11,15,11,9">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="52" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-
-                    <UniformGrid Grid.Row="0" Columns="4" Margin="0,0,0,7">
-                        <Button Style="{StaticResource IncrementButtonStyle}" Margin="2,0">
-                            <StackPanel>
-                                <TextBlock Text="+5" FontSize="17" FontWeight="Normal" HorizontalAlignment="Center" />
-                                <TextBlock Text="MIN" FontSize="8" Foreground="#D3D8D9" HorizontalAlignment="Center" Margin="0,-1,0,0" />
-                            </StackPanel>
-                        </Button>
-                        <Button Style="{StaticResource IncrementButtonStyle}" Margin="2,0">
-                            <StackPanel>
-                                <TextBlock Text="+10" FontSize="17" FontWeight="Normal" HorizontalAlignment="Center" />
-                                <TextBlock Text="MIN" FontSize="8" Foreground="#D3D8D9" HorizontalAlignment="Center" Margin="0,-1,0,0" />
-                            </StackPanel>
-                        </Button>
-                        <Button Style="{StaticResource IncrementButtonStyle}" Margin="2,0">
-                            <StackPanel>
-                                <TextBlock Text="+30" FontSize="17" FontWeight="Normal" HorizontalAlignment="Center" />
-                                <TextBlock Text="MIN" FontSize="8" Foreground="#D3D8D9" HorizontalAlignment="Center" Margin="0,-1,0,0" />
-                            </StackPanel>
-                        </Button>
-                        <Button Style="{StaticResource IncrementButtonStyle}" Margin="2,0">
-                            <StackPanel>
-                                <TextBlock Text="+60" FontSize="17" FontWeight="Normal" HorizontalAlignment="Center" />
-                                <TextBlock Text="MIN" FontSize="8" Foreground="#D3D8D9" HorizontalAlignment="Center" Margin="0,-1,0,0" />
-                            </StackPanel>
-                        </Button>
-                    </UniformGrid>
-
-                    <Grid Grid.Row="1" Margin="2,1,2,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-
-                        <Button Grid.Column="0"
-                                Style="{StaticResource FlatIconButtonStyle}"
-                                Content="↻"
-                                HorizontalAlignment="Center"
-                                ToolTip="Reset" />
-
-                        <Button Grid.Column="1"
-                                Style="{StaticResource PauseButtonStyle}"
-                                Content="Ⅱ"
-                                HorizontalAlignment="Center"
-                                ToolTip="Pausar" />
-
-                        <Button Grid.Column="2"
-                                Style="{StaticResource FlatIconButtonStyle}"
-                                Content="•••"
-                                Foreground="#BFE7EA"
-                                HorizontalAlignment="Center"
-                                ToolTip="Mais" />
-                    </Grid>
-                </Grid>
-            </Grid>
-        </Border>
-    </Grid>
+            <Button Canvas.Left="292" Canvas.Top="1685" Width="110" Height="135"
+                    Style="{StaticResource ReferenceHitButton}" ToolTip="Reset" />
+            <Button Canvas.Left="591" Canvas.Top="1666" Width="206" Height="185"
+                    Style="{StaticResource ReferenceHitButton}" ToolTip="Pausar" />
+            <Button Canvas.Left="888" Canvas.Top="1686" Width="130" Height="135"
+                    Style="{StaticResource ReferenceHitButton}" ToolTip="Mais" />
+        </Canvas>
+    </Viewbox>
 </Window>
