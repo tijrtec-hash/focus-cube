@@ -1,54 +1,72 @@
 # PROJECT_HANDOFF.md — FOCUS CUBE
 
 **Atualização:** 15/09/2026  
-**Checkpoint:** VIS-01 / fidelidade híbrida 0.2.1  
-**Versão de trabalho:** 0.2.1  
-**Validação existente:** 0.1.0 e 0.2.0 foram compiladas/executadas no Windows. O usuário rejeitou ambas visualmente; na 0.2.0 o tamanho ainda foi considerado excessivo e o material continuou distante da referência.  
-**Etapa atual:** compilar 0.2.1 e validar a nova estratégia híbrida baseada diretamente na referência aprovada.
+**Checkpoint:** TIMER-01 / countdown funcional 0.3.0  
+**Versão de trabalho:** 0.3.0  
+**Validação existente:** VIS-01 / 0.2.1 aprovado visualmente pelo usuário em 15/09/2026. O usuário considerou o visual perfeito e registrou apenas leve suavidade/baixa resolução nas letras pequenas rasterizadas, sem bloquear a continuidade.  
+**Etapa atual:** compilar 0.3.0 no GitHub Actions e validar countdown, pause/continue, reset e incrementos no Windows.
 
 ## 1. Estado vigente
 
 O Focus Cube é um timer/widget desktop para Windows em C# + WPF + .NET 8.
 
-A captura real da 0.2.0 mostrou que a redução anterior foi insuficiente e que a reconstrução puramente vetorial ainda não reproduzia com fidelidade o relevo/material da ilustração. A 0.2.1 muda a estratégia visual de VIS-01:
+### Visual aprovado
 
-- tamanho padrão reduzido de `260 × 390` para `170 × 251` DIPs;
-- toda a composição passa a usar uma superfície de design `1388 × 2048`, exatamente na proporção da referência;
-- `Viewbox` reduz essa superfície para o tamanho do widget sem alterar proporções internas;
-- carcaça, gaveta, botões em repouso, reflexos e relevo usam a própria referência aprovada como textura estática;
-- o fundo externo da referência é recortado por geometria, preservando transparência ao redor do widget;
-- o display original da referência é coberto por uma superfície escura limpa;
-- `TIMER`, `52:18`, aro e chevron são redesenhados por WPF sobre essa superfície;
-- aro continua vetorial, segmentado em 12 partes e preparado para `verde → amarelo → laranja → vermelho`;
-- os botões da gaveta possuem hit targets reais e transparentes alinhados sobre a arte de referência;
-- a interface continua funcionalmente preparada para receber countdown e interações reais sem depender de texto/ring rasterizados.
+VIS-01 foi aprovado manualmente pelo usuário. Permanecem aprovados:
 
-Ainda não implementado:
+- escala `170 × 251` DIPs;
+- shell híbrido baseado na referência raster;
+- display WPF sobre o shell;
+- relevo/material;
+- gaveta inferior;
+- botões e composição geral;
+- transparência e always-on-top observados no Windows.
 
-- countdown real;
-- pause/reset/incrementos funcionais;
-- ligação do aro ao timer real;
-- expansão/recolhimento;
-- snap/persistência.
+Observação não bloqueante para POLISH-01:
 
-Referência aprovada:
+- letras pequenas rasterizadas dos botões parecem um pouco suaves/sem resolução na escala atual.
 
-`docs/reference/widget-expanded-approved.png`
+### TIMER-01 implementado no código nesta versão
 
-Asset usado pelo executável para o shell:
+- novo `TimerSession.cs`, separando estado temporal da camada WPF;
+- duração base de 60 minutos;
+- início automático ao abrir;
+- countdown calculado por deadline, não por subtração fixa de um segundo;
+- display `mm:ss` em tempo real;
+- pause/continue real;
+- reset para 60 minutos preservando o estado rodando/pausado;
+- `+5`, `+10`, `+30`, `+60` funcionais;
+- incrementos estendem o tempo restante e a duração corrente da sessão;
+- aro ligado ao progresso real da sessão;
+- tooltip do botão central alterna entre `Pausar` e `Continuar`.
 
-`src/FocusCube/Assets/widget-shell-reference.png`
+Ainda não validado:
+
+- compilação 0.3.0 no GitHub Actions;
+- comportamento temporal real no Windows;
+- incrementos e reset reais;
+- regressão visual da 0.3.0.
+
+Ainda não implementado/refinado:
+
+- alerta ao terminar;
+- comportamento visual especial em `00:00`;
+- refinamento/animação do aro em RING-01;
+- expansão/recolhimento em DRAWER-01;
+- snap/persistência em DOCK-01;
+- menu `...`;
+- nitidez dos pequenos textos rasterizados em POLISH-01.
 
 ## 2. Próxima ação exata
 
-1. Enviar/substituir os arquivos da revisão 0.2.1 no mesmo repositório GitHub pelo navegador.
+1. Enviar/substituir os arquivos da revisão 0.3.0 no mesmo repositório GitHub pelo navegador.
 2. Confirmar a alteração no site.
 3. Abrir **Actions → Windows build and publish**.
 4. Se vermelho, enviar somente o primeiro erro relevante da nova execução.
 5. Se verde, baixar **FocusCube-win-x64**.
 6. Extrair e abrir `FocusCube.exe`.
-7. Enviar uma captura de tela inteira com o widget aberto.
-8. Validar primeiro **tamanho** e **fidelidade do shell**; somente depois ajustar tipografia/aro em detalhes ou iniciar TIMER-01.
+7. Executar `TESTE_TIMER01.md`.
+8. Se todos os cenários passarem, registrar `Focus Cube TIMER-01 aprovado` e avançar para refinamento do aro/estado final.
 
 ## 3. Regras do workflow atual
 
@@ -56,60 +74,55 @@ Asset usado pelo executável para o shell:
 - Não exigir Git local, GitHub Desktop, Visual Studio ou SDK .NET.
 - Não introduzir Pull Request ou branches auxiliares sem necessidade concreta.
 - GitHub Actions é o compilador do projeto para os testes do usuário.
-- Workflow verde prova compilação/publicação daquela versão; não prova fidelidade visual.
-- A aprovação visual depende do teste do usuário.
+- Workflow verde prova compilação/publicação daquela versão; não prova funcionamento do timer.
+- A aprovação funcional depende do teste do usuário.
 
-## 4. Decisões visuais vigentes
+## 4. Decisões funcionais vigentes
 
-- widget pequeno e discreto no desktop;
-- timer grande e dominante;
-- shell deve se aproximar diretamente da referência aprovada;
-- estratégia híbrida: material/relevo estático pode vir da referência raster, enquanto conteúdo dinâmico permanece WPF;
-- display preto/recuado;
-- gaveta inferior integrada e mais estreita que o corpo;
-- botões `+5`, `+10`, `+30`, `+60` preservam o relevo da referência;
-- aro segmentado e funcional ao redor do timer;
-- cor do aro: `verde → amarelo → laranja → vermelho` conforme o tempo acaba;
-- reset e menu secundários; pause é o controle principal;
-- sem dashboard permanente.
+- sessão padrão: 60 minutos;
+- inicia automaticamente ao abrir;
+- botão central alterna pause/continue;
+- reset restaura a duração base de 60 minutos;
+- reset preserva se a sessão estava rodando ou pausada;
+- `+5/+10/+30/+60` adicionam tempo à sessão atual;
+- incrementos também aumentam a duração corrente usada para calcular progresso;
+- se o timer terminou e o usuário adiciona tempo, a nova duração fica pausada até continuar;
+- o aro recebe o progresso temporal real, mas refinamentos visuais continuam pertencendo a RING-01.
 
 ## 5. Validação disponível
 
 Comprovado pelo usuário:
 
-- `FocusCube.exe` foi executado no Windows;
-- GitHub Actions conseguiu produzir versão executável após correção do restore `win-x64`;
-- janela transparente/always-on-top foi renderizada;
-- 0.1.0 foi rejeitada por tamanho e distância visual;
-- 0.2.0 ficou menor, mas ainda foi rejeitada por tamanho e fidelidade insuficientes.
+- GitHub Actions conseguiu produzir executável das versões anteriores após correção do restore `win-x64`;
+- `FocusCube.exe` abriu no Windows;
+- 0.2.1 foi aprovada visualmente;
+- tamanho, shell e composição atuais foram aceitos.
 
-A 0.2.1 foi inspecionada estruturalmente neste ambiente, mas ainda não foi compilada nem vista no Windows.
+Não comprovado nesta versão:
 
-## 6. Limites atuais
+- build 0.3.0;
+- timer funcional;
+- pausa/continuação;
+- reset/incrementos;
+- progresso temporal do aro.
 
-- a carcaça híbrida prioriza fidelidade à referência em detrimento de permitir recoloração completa do material sem novos assets;
-- tipografia do Windows pode diferir levemente da tipografia da imagem conceitual;
-- `Progress=0.87` continua estático durante VIS-01;
-- o tamanho em DIPs ainda depende de DPI/escala do Windows, portanto a captura real continua sendo a evidência decisiva.
+## 6. Arquivos alterados nesta revisão
 
-## 7. Histórico resumido
+- `src/FocusCube/TimerSession.cs`
+- `src/FocusCube/MainWindow.xaml`
+- `src/FocusCube/MainWindow.xaml.cs`
+- `README.md`
+- `PROJECT_HANDOFF.md`
+- `TESTE_TIMER01.md`
 
-### BASE-01 / 0.1.0
+## 7. Workflow de build
 
-- primeiro shell WPF e GitHub Actions;
-- executável validado no Windows;
-- VIS-01 rejeitado.
+O workflow vigente permanece:
 
-### VIS-01 / 0.2.0
+`.github/workflows/windows.yml`
 
-- redução para `260 × 390`;
-- refinamento puramente vetorial de material/aro/gaveta;
-- compilado e executado;
-- ainda rejeitado por tamanho e distância visual.
+Com restore específico para `win-x64` antes do build/publish.
 
-### VIS-01 / 0.2.1
+Artifact esperado:
 
-- redução para `170 × 251`;
-- adoção de superfície de design baseada nas coordenadas exatas da referência;
-- shell híbrido raster + display/timer/aro WPF real;
-- hit targets transparentes preservam os botões funcionais sem sacrificar o acabamento visual.
+`FocusCube-win-x64`

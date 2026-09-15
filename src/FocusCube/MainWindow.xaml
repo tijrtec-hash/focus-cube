@@ -121,12 +121,12 @@
                     BorderThickness="5"
                     IsHitTestVisible="False" />
 
-            <!-- Live progress ring. 0.87 is still static during VIS-01. -->
-            <local:ProgressRing Canvas.Left="211"
+            <!-- Live progress ring. TIMER-01 now binds it to the real countdown in code-behind. -->
+            <local:ProgressRing x:Name="TimerProgressRing" Canvas.Left="211"
                                 Canvas.Top="166"
                                 Width="966"
                                 Height="966"
-                                Progress="0.87"
+                                Progress="1"
                                 TrackBrush="#404347"
                                 RingBrush="#55DB8C"
                                 Thickness="29"
@@ -146,7 +146,7 @@
                        Foreground="#AEB3B8"
                        IsHitTestVisible="False" />
 
-            <TextBlock Canvas.Left="0"
+            <TextBlock x:Name="TimeText" Canvas.Left="0"
                        Canvas.Top="532"
                        Width="1388"
                        Text="52:18"
@@ -170,20 +170,26 @@
             <!-- Real hit regions aligned to the reference buttons. They remain visually
                  transparent at rest, so the approved relief/material stays untouched. -->
             <Button Canvas.Left="198" Canvas.Top="1430" Width="132" Height="142"
-                    Style="{StaticResource ReferenceHitButton}" ToolTip="Adicionar 5 minutos" />
+                    Style="{StaticResource ReferenceHitButton}" ToolTip="Adicionar 5 minutos"
+                    Click="Add5_Click" />
             <Button Canvas.Left="358" Canvas.Top="1430" Width="150" Height="142"
-                    Style="{StaticResource ReferenceHitButton}" ToolTip="Adicionar 10 minutos" />
+                    Style="{StaticResource ReferenceHitButton}" ToolTip="Adicionar 10 minutos"
+                    Click="Add10_Click" />
             <Button Canvas.Left="534" Canvas.Top="1430" Width="150" Height="142"
-                    Style="{StaticResource ReferenceHitButton}" ToolTip="Adicionar 30 minutos" />
+                    Style="{StaticResource ReferenceHitButton}" ToolTip="Adicionar 30 minutos"
+                    Click="Add30_Click" />
             <Button Canvas.Left="713" Canvas.Top="1430" Width="150" Height="142"
-                    Style="{StaticResource ReferenceHitButton}" ToolTip="Adicionar 60 minutos" />
+                    Style="{StaticResource ReferenceHitButton}" ToolTip="Adicionar 60 minutos"
+                    Click="Add60_Click" />
 
             <Button Canvas.Left="292" Canvas.Top="1685" Width="110" Height="135"
-                    Style="{StaticResource ReferenceHitButton}" ToolTip="Reset" />
-            <Button Canvas.Left="591" Canvas.Top="1666" Width="206" Height="185"
-                    Style="{StaticResource ReferenceHitButton}" ToolTip="Pausar" />
+                    Style="{StaticResource ReferenceHitButton}" ToolTip="Reset"
+                    Click="Reset_Click" />
+            <Button x:Name="PauseButton" Canvas.Left="591" Canvas.Top="1666" Width="206" Height="185"
+                    Style="{StaticResource ReferenceHitButton}" ToolTip="Pausar"
+                    Click="Pause_Click" />
             <Button Canvas.Left="888" Canvas.Top="1686" Width="130" Height="135"
-                    Style="{StaticResource ReferenceHitButton}" ToolTip="Mais" />
+                    Style="{StaticResource ReferenceHitButton}" ToolTip="Mais (em breve)" />
         </Canvas>
     </Viewbox>
 </Window>
